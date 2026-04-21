@@ -1,6 +1,25 @@
 @WebPlatform.Api_HostAddress = http://localhost:5130
 
-GET {{WebPlatform.Api_HostAddress}}/weatherforecast/
+### Get all books
+GET {{WebPlatform.Api_HostAddress}}/api/books
 Accept: application/json
+
+###
+
+### Get one book
+GET {{WebPlatform.Api_HostAddress}}/api/books/1
+Accept: application/json
+
+###
+
+### Create a book
+POST {{WebPlatform.Api_HostAddress}}/api/books
+Content-Type: application/json
+
+{
+  "title": "Clean Code (Test Example)",
+  "author": "Robert C. Martin",
+  "price": 30
+}
 
 ###
