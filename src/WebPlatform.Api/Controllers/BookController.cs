@@ -38,6 +38,8 @@ public class BooksController : ControllerBase
     {
         var created = _service.AddBook(book);
 
-        return Created($"/api/books/{created.Id}", created);
+        // Automatically create the http request route, instead of using
+        // something like $"/api/books/{created.Id}". This makes code more robust.
+        return CreatedAtAction(nameof(GetBook), new { id = created.Id }, created);
     }
 }

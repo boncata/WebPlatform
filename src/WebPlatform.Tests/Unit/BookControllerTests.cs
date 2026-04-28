@@ -89,7 +89,7 @@ public class BooksControllerTests
         var result = controller.CreateBook(inputBook);
 
         // Assert
-        var okResult = Assert.IsType<CreatedResult>(result);
+        var okResult = Assert.IsType<CreatedAtActionResult>(result);
         var returnedBook = Assert.IsType<Book>(okResult.Value);
 
         Assert.Equal(1, returnedBook.Id);
