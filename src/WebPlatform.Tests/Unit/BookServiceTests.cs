@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
 using WebPlatform.Api.Models;
 using WebPlatform.Api.Services;
-using Xunit;
 
 namespace WebPlatform.Tests.Unit.Services;
 
