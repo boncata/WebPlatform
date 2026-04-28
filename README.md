@@ -36,22 +36,26 @@ After installing PostgreSQL, it needs to be configured with the following instru
 
 ### Database Configuration
 Open PostgreSQL:
+
 ```Bash
 sudo -u postgres psql
 ```
 
 Create database (inside the PostgreSQL console):
+
 ```SQL
 CREATE DATABASE webplatform;
 ```
 
 Create dedicated application user (and use a different strong password):
+
 ```SQL
 CREATE USER webplatform_user
 WITH PASSWORD 'YourStrongPassword';
 ```
 
 Grant database permissions:
+
 ```SQL
 GRANT ALL PRIVILEGES
 ON DATABASE webplatform
@@ -59,11 +63,13 @@ TO webplatform_user;
 ```
 
 Connect to the database:
+
 ```SQL
 \c webplatform
 ```
 
 Grant schema permissions:
+
 ```SQL
 GRANT ALL ON SCHEMA public TO webplatform_user;
 ALTER SCHEMA public OWNER TO webplatform_user;
@@ -73,17 +79,22 @@ Then exit the PostgreSQL console.
 
 ### Database Migration
 From the project root, run:
+
 ```Bash
 dotnet ef database update --project src/WebPlatform.Api
 ```
 
+---
 
 # Configuration
 Update the "DefaultConfiguration" field in ``src/WebPlatform.Api/appsettings.json``
 to reflect the ``username`` and ``password`` set in the previous section.
 
+---
+
 # Run the API
 From the project root, run:
+
 ```Bash
 dotnet run --project src/WebPlatform.Api
 ```
@@ -91,8 +102,11 @@ dotnet run --project src/WebPlatform.Api
 The API will start and Swagger UI will be available at:
 ``http://localhost:5130/swagger``
 
+---
+
 # Run Unit Tests
 From the project root, run:
+
 ```Bash
 dotnet test
 ```
