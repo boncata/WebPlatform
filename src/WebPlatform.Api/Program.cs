@@ -37,3 +37,9 @@ app.MapControllers();
 // Run the application.
 app.Run();
 
+// Expose the Program class. Although such a class is not created in this file,
+// due to the ASP.NET workflow, the compiler actually automatically creates such
+// a class in the background. Therefore, we use 'partial' here, as we are
+// 'attaching' to it. By declaring the Program class here, we expose it to our
+// testing framework, which is needed for running integration tests.
+public partial class Program { }
