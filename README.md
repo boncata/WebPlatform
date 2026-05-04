@@ -1,12 +1,15 @@
 # WebPlatform
 
-WebPlatform is a project for building an online book-selling backend system using C#, ASP.NET Core Web API, Entity Framework Core, and PostgreSQL.
+WebPlatform is a project for building an online book-selling system, whose backend is built using C#, ASP.NET Core Web API, Entity Framework Core, and PostgreSQL, while the frontend
+is developed with JavaScript, React, Vite and Axios.
 
 The goal of the project is to create a professional backend architecture for managing books, supporting CRUD operations through a REST API, persistent database storage, automated testing, and later containerization and frontend integration.
 
 ---
 
 # Tech Stack
+
+## Backend
 
 - C#
 - ASP.NET Core Web API
@@ -16,9 +19,15 @@ The goal of the project is to create a professional backend architecture for man
 - Moq
 - Swagger / OpenAPI
 
+## Frontent
+- JavaScript
+- React
+- Vite
+- Axios
+
 ---
 
-# Requirements
+# Backend Requirements
 
 The requirements and their installation procedure are planned to be automated,
 at least to a degree, when the project is updated to run inside a container.
@@ -84,15 +93,32 @@ From the project root, run:
 dotnet ef database update --project src/WebPlatform.Api
 ```
 
----
-
-# Configuration
+## Configuration
 Update the "DefaultConfiguration" field in ``src/WebPlatform.Api/appsettings.json``
 to reflect the ``username`` and ``password`` set in the previous section.
 
 ---
 
-# Run the API
+# Frontend Requirements
+The frontend is located in ``frontend/webplatform-ui``.
+
+## Node.js
+
+Install ``Node.js`` and ``npm``. This project is currently built using Node.js,
+version 24 (LTS).
+
+## Project dependencies
+Navigate to fronted directory ``frontend/webplatform-ui``. Install the required packages:
+
+```Bash
+npm install
+```
+
+---
+
+# Run WebPlatform
+
+## Backend (API)
 From the project root, run:
 
 ```Bash
@@ -102,9 +128,19 @@ dotnet run --project src/WebPlatform.Api
 The API will start and Swagger UI will be available at:
 ``http://localhost:5130/swagger``
 
+## Frontend
+Start the development server:
+
+```Bash
+npm run dev
+```
+
+The app will be available at:
+``http://localhost:5173``
+
 ---
 
-# Run Unit Tests
+# Run Tests
 From the project root, run:
 
 ```Bash

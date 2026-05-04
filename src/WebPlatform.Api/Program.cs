@@ -19,7 +19,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddScoped<IBookService, BookService>();
 
+// Allow CORS. We are currently hard-coding the localhost address.
+// It works for now, but we should probably develop a more robust solution.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+// Build the application.
 var app = builder.Build();
+
+// Also for CORS usage.
+app.UseCors("AllowFrontend");
 
 // Only use Swagger in development environment.
 if (app.Environment.IsDevelopment())
