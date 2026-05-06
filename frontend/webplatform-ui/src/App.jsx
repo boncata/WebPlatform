@@ -1,106 +1,40 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
+import BookList from "./components/BookList";
+import BookForm from "./components/BookForm";
+
+import { getBooks } from "./api/books";
+
+/**
+ * The main compoment.
+ * @returns Returns the specified UI.
+ */
 function App() {
-
-  // Add Form State
+  // books is the state variable, setBooks is the function that
+  // updates the state variable. They both come from useState.
+  // useState is given by React and runs React procedures automatically.
   const [books, setBooks] = useState([]);
 
-  const [form, setForm] = useState({
-    title: "",
-    author: "",
-    price: ""
-  });
-
-  const api = "http://localhost:5130/api/books";
-
-  // Load Books
-  const loadBooks = () => {
-    axios.get(api).then((res) => setBooks(res.data));
+  const loadBooks = async () => {
+    try {
+      const data = await getBooks();
+      setBooks(data);
+    } catch (error) {
+      console.error("Error loading books:", error);
+    }
   };
 
   useEffect(() => {
     loadBooks();
   }, []);
 
-  // Handle Input Changes
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  //Handle Submit (POST)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Small input validation
-    if (!form.title || !form.author || !form.price) {
-      alert("All fields are required");
-      return;
-    }
-
-    const payload = {
-      title: form.title,
-      author: form.author,
-      price: Number(form.price)
-    };
-
-    try {
-      await axios.post(api, payload);
-
-      // reset form
-      setForm({
-        title: "",
-        author: "",
-        price: ""
-      });
-
-      // reload books
-      loadBooks();
-    } catch (error) {
-      console.error("Error creating book:", error);
-    }
-  };
-
-// Add the Form UI
   return (
     <div>
       <h1>Books</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="title"
-          placeholder="Title"
-          value={form.title}
-          onChange={handleChange}
-        />
+      <BookForm onBookCreated={loadBooks} />
 
-        <input
-          name="author"
-          placeholder="Author"
-          value={form.author}
-          onChange={handleChange}
-        />
-
-        <input
-          name="price"
-          placeholder="Price"
-          value={form.price}
-          onChange={handleChange}
-        />
-
-        <button type="submit">Add Book</button>
-      </form>
-
-      <ul>
-        {books.map((b) => (
-          <li key={b.id}>
-            {b.title} — {b.author} (${b.price})
-          </li>
-        ))}
-      </ul>
+      <BookList books={books} />
     </div>
   );
 }
