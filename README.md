@@ -19,7 +19,7 @@ The goal of the project is to create a professional backend architecture for man
 - Moq
 - Swagger / OpenAPI
 
-## Frontent
+## Frontend
 - JavaScript
 - React
 - Vite
@@ -108,7 +108,7 @@ Install ``Node.js`` and ``npm``. This project is currently built using Node.js,
 version 24 (LTS).
 
 ## Project dependencies
-Navigate to fronted directory ``frontend/webplatform-ui``. Install the required packages:
+Navigate to frontend directory ``frontend/webplatform-ui``. Install the required packages:
 
 ```Bash
 npm install
