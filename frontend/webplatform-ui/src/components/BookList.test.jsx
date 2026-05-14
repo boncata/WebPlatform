@@ -4,6 +4,12 @@ import { render, screen } from "@testing-library/react";
 
 import BookList from "./BookList";
 
+// Cleans up the DOM & Mocks after each test.
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
 // "describe" groups related tests, e.g. a test suite.
 describe("BookList", () => {
 

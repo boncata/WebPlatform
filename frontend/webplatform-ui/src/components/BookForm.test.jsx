@@ -5,7 +5,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/re
 
 import BookForm from "./BookForm";
 
-// Cleans up the DOM after each test.
+// Cleans up the DOM & Mocks after each test.
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
