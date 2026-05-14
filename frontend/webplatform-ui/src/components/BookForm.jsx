@@ -21,7 +21,7 @@ function BookForm({ onBookCreated }) {
     event.preventDefault();
 
     if (!form.title || !form.author || !form.price) {
-      alert("All fields are required");
+      alert("All fields are required.");
       return;
     }
 
