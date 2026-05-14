@@ -141,6 +141,8 @@ The app will be available at:
 ---
 
 # Run Tests
+
+## Backend
 From the project root, run:
 
 ```Bash
@@ -148,3 +150,12 @@ dotnet test
 ```
 
 This runs all automated tests inside ``WebPlatform.Tests``.
+
+## Frontend
+From the ``/frontend/webplatform-ui`` folder, run:
+
+```Bash
+npm run test
+```
+
+This runs all automated tests inside ``webplatform-ui``.
