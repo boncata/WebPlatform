@@ -1,6 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/WebPlatform.Api/WebPlatform.Api.csproj" />
-    <Project Path="src/WebPlatform.Tests/WebPlatform.Tests.csproj" />
-  </Folder>
-</Solution>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="WebPlatform.Api/WebPlatform.Api.csproj" />
+  <Project Path="WebPlatform.Tests/WebPlatform.Tests.csproj" />
+</Solution>
