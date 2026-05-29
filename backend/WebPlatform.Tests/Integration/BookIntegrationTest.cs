@@ -52,5 +52,13 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         Assert.Contains(
             books,
             b => b.Title == "Domain-Driven Design");
+
+        // Cleanup: Delete the book we just created, to keep the database clean.
+        // This is not ideal, but it is ok for the MVP. We will update this,
+        // after the MVP completion.
+        var deleteResponse = await _client.DeleteAsync(
+            $"/api/books/{books.First(b => b.Title == "Domain-Driven Design").Id}");
+        // Check that the delete was successful.
+        deleteResponse.EnsureSuccessStatusCode();
     }
 }

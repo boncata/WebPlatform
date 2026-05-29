@@ -95,4 +95,42 @@ public class BooksControllerTests
         Assert.Equal(1, returnedBook.Id);
         Assert.Equal("Clean Architecture", returnedBook.Title);
     }
+
+    [Fact]
+    public void DeleteBook_ShouldReturnOk_WhenBookIsDeleted()
+    {
+        // Arrange
+        var mockService = new Mock<IBookService>();
+
+        mockService
+            .Setup(service => service.DeleteBook(1))
+            .Returns(true);
+
+        var controller = new BooksController(mockService.Object);
+
+        // Act
+        var result = controller.DeleteBook(1);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public void DeleteBook_ShouldReturnNotFound_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var mockService = new Mock<IBookService>();
+
+        mockService
+            .Setup(service => service.DeleteBook(999))
+            .Returns(false);
+
+        var controller = new BooksController(mockService.Object);
+
+        // Act
+        var result = controller.DeleteBook(999);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
 }

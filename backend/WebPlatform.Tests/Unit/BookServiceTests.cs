@@ -121,4 +121,49 @@ public class BookServiceTests
         Assert.Contains(result, b => b.Title == "Clean Code");
         Assert.Contains(result, b => b.Title == "The Pragmatic Programmer");
     }
+
+    [Fact]
+    public void DeleteBook_ShouldRemoveBookFromDatabase()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var book = new Book
+        {
+            Title = "Clean Code",
+            Author = "Robert C. Martin",
+            Price = 30
+        };
+
+        context.Books.Add(book);
+        context.SaveChanges();
+
+        // Quick check to ensure the book was added before we delete it.
+        Assert.Contains(context.Books, b => b.Title == "Clean Code");
+
+        var service = new BookService(context);
+
+        // Act
+        var result = service.DeleteBook(book.Id);
+
+        // Assert
+        Assert.True(result);
+        Assert.Empty(context.Books);
+    }
+
+    [Fact]
+    public void DeleteBook_ShouldReturnFalse_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var context = CreateDbContext();
+        var service = new BookService(context);
+
+        int nonExistingId = 999;
+
+        // Act
+        var result = service.DeleteBook(nonExistingId);
+
+        // Assert
+        Assert.False(result);
+    }
 }

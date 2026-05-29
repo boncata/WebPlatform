@@ -42,4 +42,16 @@ public class BooksController : ControllerBase
         // something like $"/api/books/{created.Id}". This makes code more robust.
         return CreatedAtAction(nameof(GetBook), new { id = created.Id }, created);
     }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteBook(int id)
+    {
+        var deleted = _service.DeleteBook(id);
+
+        // If the books was not found, return 404.
+        if (!deleted)
+            return NotFound();
+        // Delete was successful, return 204 (No Content).
+        return NoContent();
+    }
 }

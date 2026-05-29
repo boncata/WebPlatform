@@ -31,4 +31,22 @@ public class BookService: IBookService
 
         return book;
     }
+
+    public bool DeleteBook(int id)
+    {
+        var book = _context.Books.Find(id);
+
+        if (book == null)
+            // The book was not found, cannot delete.
+            return false;
+        else
+        {
+            // Schedule the delete, then save the changes to the database.
+            _context.Books.Remove(book);
+            _context.SaveChanges();
+            // Return true, as the delete was successful.
+            return true;
+        }
+
+    }
 }
