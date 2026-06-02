@@ -17,9 +17,12 @@ public class BooksControllerTests
         var book = new Book
         {
             Id = 1,
-            Title = "Clean Code",
-            Author = "Robert C. Martin",
-            Price = 30
+            ISBN = "9780441172719",
+            Title = "Dune",
+            Author = "Frank Herbert",
+            Description = "Sci-fi classic",
+            Price = 19.99m,
+            Condition = BookCondition.Good
         };
 
         mockService
@@ -36,7 +39,7 @@ public class BooksControllerTests
         var returnedBook = Assert.IsType<Book>(okResult.Value);
 
         Assert.Equal(1, returnedBook.Id);
-        Assert.Equal("Clean Code", returnedBook.Title);
+        Assert.Equal("Dune", returnedBook.Title);
     }
 
     [Fact]

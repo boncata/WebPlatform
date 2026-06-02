@@ -25,9 +25,12 @@ public class BookServiceTests
 
         var book = new Book
         {
-            Title = "Clean Code",
-            Author = "Robert C. Martin",
-            Price = 30
+            ISBN = "9780441172719",
+            Title = "Dune",
+            Author = "Frank Herbert",
+            Description = "Sci-fi classic",
+            Price = 19.99m,
+            Condition = BookCondition.Good
         };
 
         // Act
@@ -35,7 +38,12 @@ public class BookServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Clean Code", result.Title);
+        Assert.Equal(1, result.Id);
+        Assert.Equal("Dune", result.Title);
+        Assert.Equal("Frank Herbert", result.Author);
+        Assert.Equal("Sci-fi classic", result.Description);
+        Assert.Equal(19.99m, result.Price);
+        Assert.Equal(BookCondition.Good, result.Condition);
         Assert.Equal(1, context.Books.Count());
     }
 
@@ -47,9 +55,12 @@ public class BookServiceTests
 
         var book = new Book
         {
+            ISBN = "9780441172719",
             Title = "The Pragmatic Programmer",
             Author = "Andrew Hunt",
-            Price = 45
+            Description = "Practical programming advice",
+            Price = 45,
+            Condition = BookCondition.Excellent
         };
 
         context.Books.Add(book);
@@ -65,7 +76,9 @@ public class BookServiceTests
         Assert.Equal(book.Id, result.Id);
         Assert.Equal("The Pragmatic Programmer", result.Title);
         Assert.Equal("Andrew Hunt", result.Author);
+        Assert.Equal("Practical programming advice", result.Description);
         Assert.Equal(45, result.Price);
+        Assert.Equal(BookCondition.Excellent, result.Condition);
     }
 
     [Fact]
@@ -94,15 +107,21 @@ public class BookServiceTests
         {
             new Book
             {
-                Title = "Clean Code",
-                Author = "Robert C. Martin",
-                Price = 30
+                ISBN = "9780441172719",
+                Title = "Dune",
+                Author = "Frank Herbert",
+                Description = "Sci-fi classic",
+                Price = 19.99m,
+                Condition = BookCondition.New
             },
             new Book
             {
+                ISBN = "9780441172719",
                 Title = "The Pragmatic Programmer",
                 Author = "Andrew Hunt",
-                Price = 45
+                Description = "Practical programming advice",
+                Price = 10,
+                Condition = BookCondition.Poor
             }
         };
 
@@ -118,7 +137,7 @@ public class BookServiceTests
         Assert.NotNull(result);
         Assert.Equal(2, result.Count());
 
-        Assert.Contains(result, b => b.Title == "Clean Code");
+        Assert.Contains(result, b => b.Title == "Dune");
         Assert.Contains(result, b => b.Title == "The Pragmatic Programmer");
     }
 
@@ -130,16 +149,19 @@ public class BookServiceTests
 
         var book = new Book
         {
-            Title = "Clean Code",
-            Author = "Robert C. Martin",
-            Price = 30
+            ISBN = "9780441172719",
+            Title = "Dune",
+            Author = "Frank Herbert",
+            Description = "Sci-fi classic",
+            Price = 19.99m,
+            Condition = BookCondition.Good
         };
 
         context.Books.Add(book);
         context.SaveChanges();
 
         // Quick check to ensure the book was added before we delete it.
-        Assert.Contains(context.Books, b => b.Title == "Clean Code");
+        Assert.Contains(context.Books, b => b.Title == "Dune");
 
         var service = new BookService(context);
 
@@ -165,5 +187,32 @@ public class BookServiceTests
 
         // Assert
         Assert.False(result);
+    }
+
+    [Theory]
+    [InlineData(BookCondition.New)]
+    [InlineData(BookCondition.LikeNew)]
+    [InlineData(BookCondition.Excellent)]
+    [InlineData(BookCondition.Good)]
+    [InlineData(BookCondition.Fair)]
+    [InlineData(BookCondition.Poor)]
+    public async Task BookCondition_ShouldPersistCorrectly(
+        BookCondition condition)
+    {
+        var context = CreateDbContext();
+
+        var book = new Book
+        {
+            Title = "Test",
+            Author = "Test",
+            Condition = condition
+        };
+
+        context.Books.Add(book);
+        await context.SaveChangesAsync();
+
+        var saved = await context.Books.FirstAsync();
+
+        Assert.Equal(condition, saved.Condition);
     }
 }

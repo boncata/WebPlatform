@@ -29,9 +29,12 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Arrange
         var newBook = new Book
         {
+            ISBN = "9780321125217",
             Title = "Domain-Driven Design",
             Author = "Eric Evans",
-            Price = 55
+            Description = "Domain-driven design principles",
+            Price = 55,
+            Condition = BookCondition.New
         };
 
         // Act — POST
@@ -51,13 +54,18 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         Assert.NotNull(books);
         Assert.Contains(
             books,
-            b => b.Title == "Domain-Driven Design");
+            b => b.ISBN == "9780321125217" &&
+                 b.Author == "Eric Evans" &&
+                 b.Title == "Domain-Driven Design" &&
+                 b.Description == "Domain-driven design principles" &&
+                 b.Price == 55 &&
+                 b.Condition == BookCondition.New);
 
         // Cleanup: Delete the book we just created, to keep the database clean.
         // This is not ideal, but it is ok for the MVP. We will update this,
         // after the MVP completion.
         var deleteResponse = await _client.DeleteAsync(
-            $"/api/books/{books.First(b => b.Title == "Domain-Driven Design").Id}");
+            $"/api/books/{books.First(b => b.ISBN == "9780321125217").Id}");
         // Check that the delete was successful.
         deleteResponse.EnsureSuccessStatusCode();
     }
