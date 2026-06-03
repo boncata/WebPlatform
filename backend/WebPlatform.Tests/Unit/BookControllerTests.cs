@@ -136,4 +136,93 @@ public class BooksControllerTests
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
+
+    [Fact]
+    public void UpdateBook_ShouldReturnOk_WhenBookIsUpdated()
+    {
+        // Arrange
+        var mockService = new Mock<IBookService>();
+
+        var inputBook = new Book
+        {
+            Id = 1,
+            Title = "Clean Code",
+            Author = "Robert C. Martin",
+            Price = 35
+        };
+
+        var updatedBook = new Book
+        {
+            Id = 1,
+            Title = "Clean Code",
+            Author = "Robert C. Martin",
+            Price = 35
+        };
+
+        mockService
+            .Setup(service => service.UpdateBook(inputBook))
+            .Returns(updatedBook);
+
+        var controller = new BooksController(mockService.Object);
+
+        // Act
+        var result = controller.UpdateBook(1, inputBook);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnedBook = Assert.IsType<Book>(okResult.Value);
+
+        Assert.Equal(1, returnedBook.Id);
+        Assert.Equal("Clean Code", returnedBook.Title);
+    }
+
+    [Fact]
+    public void UpdateBook_ShouldReturnBadRequest_WhenIdMismatch()
+    {
+        // Arrange
+        var mockService = new Mock<IBookService>();
+
+        var inputBook = new Book
+        {
+            Id = 1,
+            Title = "Clean Code",
+            Author = "Robert C. Martin",
+            Price = 35
+        };
+
+        var controller = new BooksController(mockService.Object);
+
+        // Act
+        var result = controller.UpdateBook(999, inputBook);
+
+        // Assert
+        Assert.IsType<BadRequestResult>(result);
+    }
+
+    [Fact]
+    public void UpdateBook_ShouldReturnNotFound_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var mockService = new Mock<IBookService>();
+
+        var inputBook = new Book
+        {
+            Id = 1,
+            Title = "Clean Code",
+            Author = "Robert C. Martin",
+            Price = 35
+        };
+
+        mockService
+            .Setup(service => service.UpdateBook(inputBook))
+            .Returns((Book)null);
+
+        var controller = new BooksController(mockService.Object);
+
+        // Act
+        var result = controller.UpdateBook(1, inputBook);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
 }

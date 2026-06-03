@@ -215,4 +215,76 @@ public class BookServiceTests
 
         Assert.Equal(condition, saved.Condition);
     }
+
+    [Fact]
+    public void UpdateBook_ShouldReturnUpdatedBook_WhenBookIsUpdated()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var book = new Book
+        {
+            Id = 1,
+            ISBN = "9780441172719",
+            Title = "Dune",
+            Author = "Frank Herbert",
+            Description = "Sci-fi classic",
+            Price = 19.99m,
+            Condition = BookCondition.Good
+        };
+
+        context.Books.Add(book);
+        context.SaveChanges();
+
+        var updatedBook = new Book
+        {
+            Id = 1,
+            ISBN = "9780441172719",
+            Title = "Dune - Updated",
+            Author = "Frank Herbert",
+            Description = "Sci-fi classic - Updated",
+            Price = 29.99m,
+            Condition = BookCondition.Excellent
+        };
+
+        var service = new BookService(context);
+
+        // Act
+        var result = service.UpdateBook(updatedBook);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(updatedBook.Id, result.Id);
+        Assert.Equal("Dune - Updated", updatedBook.Title);
+        Assert.Equal("Sci-fi classic - Updated", updatedBook.Description);
+        Assert.Equal(book.ISBN, result.ISBN);
+        Assert.Equal(BookCondition.Excellent, result.Condition);
+    }
+
+    [Fact]
+    public void UpdateBook_ShouldReturnNull_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var context = CreateDbContext();
+        var service = new BookService(context);
+
+        // Do not add nonExistingBook to the context, so it
+        // simulates a book that does not exist in the database.
+        var nonExistingBook = new Book
+        {
+            Id = 999,
+            ISBN = "9780441172719",
+            Title = "Non-existing Book",
+            Author = "Unknown",
+            Description = "This book does not exist in the database",
+            Price = 0,
+            Condition = BookCondition.Poor
+        };
+
+        // Act
+        var result = service.UpdateBook(nonExistingBook);
+
+        // Assert
+        Assert.Null(result);
+    }
 }

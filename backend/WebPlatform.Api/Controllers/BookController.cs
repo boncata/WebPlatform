@@ -43,6 +43,20 @@ public class BooksController : ControllerBase
         return CreatedAtAction(nameof(GetBook), new { id = created.Id }, created);
     }
 
+    [HttpPut("{id}")]
+    public IActionResult UpdateBook(int id, Book book)
+    {
+        if (id != book.Id)
+            return BadRequest();
+
+        var updated = _service.UpdateBook(book);
+
+        if (updated == null)
+            return NotFound();
+
+        return Ok(updated);
+    }
+
     [HttpDelete("{id}")]
     public IActionResult DeleteBook(int id)
     {

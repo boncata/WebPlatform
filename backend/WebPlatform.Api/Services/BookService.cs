@@ -32,6 +32,30 @@ public class BookService: IBookService
         return book;
     }
 
+    public Book? UpdateBook(Book book)
+    {
+        var existingBook = _context.Books.Find(book.Id);
+
+        if (existingBook == null)
+            // The book was not found, cannot update.
+            return null;
+        else
+        {
+            // Update the properties of the existing book with the new values.
+            existingBook.ISBN = book.ISBN;
+            existingBook.Title = book.Title;
+            existingBook.Author = book.Author;
+            existingBook.Description = book.Description;
+            existingBook.Price = book.Price;
+            existingBook.Condition = book.Condition;
+
+            // Save the changes to the database.
+            _context.SaveChanges();
+
+            return existingBook;
+        }
+    }
+
     public bool DeleteBook(int id)
     {
         var book = _context.Books.Find(id);

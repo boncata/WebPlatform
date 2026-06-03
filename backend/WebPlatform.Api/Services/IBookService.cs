@@ -12,5 +12,7 @@ public interface IBookService
 
     Book AddBook(Book book);
 
+    Book? UpdateBook(Book book);
+
     bool DeleteBook(int id);
 }
