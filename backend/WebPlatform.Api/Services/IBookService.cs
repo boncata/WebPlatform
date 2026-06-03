@@ -1,3 +1,4 @@
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 
 namespace WebPlatform.Api.Services;
@@ -10,9 +11,9 @@ public interface IBookService
 
     Task<Book?> GetBookAsync(int id);
 
-    Task<Book> AddBookAsync(Book book);
+    Task<Book> AddBookAsync(BookRequest request);
 
-    Task<Book?> UpdateBookAsync(Book book);
+    Task<Book?> UpdateBookAsync(int id, BookRequest bookRequest);
 
     Task<bool> DeleteBookAsync(int id);
 }

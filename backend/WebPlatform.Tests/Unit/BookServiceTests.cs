@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 using WebPlatform.Api.Services;
 
@@ -23,7 +24,7 @@ public class BookServiceTests
         var context = CreateDbContext();
         var service = new BookService(context);
 
-        var book = new Book
+        var bookRequest = new BookRequest
         {
             ISBN = "9780441172719",
             Title = "Dune",
@@ -34,7 +35,7 @@ public class BookServiceTests
         };
 
         // Act
-        var result = await service.AddBookAsync(book);
+        var result = await service.AddBookAsync(bookRequest);
 
         // Assert
         Assert.NotNull(result);
@@ -222,9 +223,11 @@ public class BookServiceTests
         // Arrange
         var context = CreateDbContext();
 
+        int id = 1;
+
         var book = new Book
         {
-            Id = 1,
+            Id = id,
             ISBN = "9780441172719",
             Title = "Dune",
             Author = "Frank Herbert",
@@ -236,9 +239,8 @@ public class BookServiceTests
         context.Books.Add(book);
         context.SaveChanges();
 
-        var updatedBook = new Book
+        var updatedBookRequest = new BookRequest
         {
-            Id = 1,
             ISBN = "9780441172719",
             Title = "Dune - Updated",
             Author = "Frank Herbert",
@@ -250,13 +252,13 @@ public class BookServiceTests
         var service = new BookService(context);
 
         // Act
-        var result = await service.UpdateBookAsync(updatedBook);
+        var result = await service.UpdateBookAsync(id, updatedBookRequest);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(updatedBook.Id, result.Id);
-        Assert.Equal("Dune - Updated", updatedBook.Title);
-        Assert.Equal("Sci-fi classic - Updated", updatedBook.Description);
+        Assert.Equal(id, result.Id);
+        Assert.Equal("Dune - Updated", updatedBookRequest.Title);
+        Assert.Equal("Sci-fi classic - Updated", updatedBookRequest.Description);
         Assert.Equal(book.ISBN, result.ISBN);
         Assert.Equal(BookCondition.Excellent, result.Condition);
     }
@@ -268,11 +270,12 @@ public class BookServiceTests
         var context = CreateDbContext();
         var service = new BookService(context);
 
+        int nonExistingId = 999;
+
         // Do not add nonExistingBook to the context, so it
         // simulates a book that does not exist in the database.
-        var nonExistingBook = new Book
+        var nonExistentBookRequest = new BookRequest
         {
-            Id = 999,
             ISBN = "9780441172719",
             Title = "Non-existing Book",
             Author = "Unknown",
@@ -282,7 +285,7 @@ public class BookServiceTests
         };
 
         // Act
-        var result = await service.UpdateBookAsync(nonExistingBook);
+        var result = await service.UpdateBookAsync(nonExistingId, nonExistentBookRequest);
 
         // Assert
         Assert.Null(result);

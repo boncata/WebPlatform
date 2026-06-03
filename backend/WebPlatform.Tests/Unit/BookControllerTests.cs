@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebPlatform.Api.Controllers;
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 using WebPlatform.Api.Services;
 
@@ -74,28 +75,26 @@ public class BooksControllerTests
             Price = 40
         };
 
-        var createdBook = new Book
+        var inputBookRequest = new BookRequest
         {
-            Id = 1,
             Title = "Clean Architecture",
             Author = "Robert C. Martin",
             Price = 40
         };
 
         mockService
-            .Setup(service => service.AddBookAsync(inputBook))
-            .ReturnsAsync(createdBook);
+            .Setup(service => service.AddBookAsync(inputBookRequest))
+            .ReturnsAsync(inputBook);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = await controller.CreateBook(inputBook);
+        var result = await controller.CreateBook(inputBookRequest);
 
         // Assert
         var okResult = Assert.IsType<CreatedAtActionResult>(result);
         var returnedBook = Assert.IsType<Book>(okResult.Value);
 
-        Assert.Equal(1, returnedBook.Id);
         Assert.Equal("Clean Architecture", returnedBook.Title);
     }
 
@@ -142,61 +141,38 @@ public class BooksControllerTests
     {
         // Arrange
         var mockService = new Mock<IBookService>();
+        int id = 1;
 
-        var inputBook = new Book
+        var inputBookRequest = new BookRequest
         {
-            Id = 1,
             Title = "Clean Code",
             Author = "Robert C. Martin",
             Price = 35
         };
 
-        var updatedBook = new Book
+        var bookReturn = new Book
         {
-            Id = 1,
+            Id = id,
             Title = "Clean Code",
             Author = "Robert C. Martin",
             Price = 35
         };
 
         mockService
-            .Setup(service => service.UpdateBookAsync(inputBook))
-            .ReturnsAsync(updatedBook);
+            .Setup(service => service.UpdateBookAsync(id, inputBookRequest))
+            .ReturnsAsync(bookReturn);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = await controller.UpdateBook(1, inputBook);
+        var result = await controller.UpdateBook(id, inputBookRequest);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedBook = Assert.IsType<Book>(okResult.Value);
 
-        Assert.Equal(1, returnedBook.Id);
+        Assert.Equal(id, returnedBook.Id);
         Assert.Equal("Clean Code", returnedBook.Title);
-    }
-
-    [Fact]
-    public async Task UpdateBook_ShouldReturnBadRequest_WhenIdMismatch()
-    {
-        // Arrange
-        var mockService = new Mock<IBookService>();
-
-        var inputBook = new Book
-        {
-            Id = 1,
-            Title = "Clean Code",
-            Author = "Robert C. Martin",
-            Price = 35
-        };
-
-        var controller = new BooksController(mockService.Object);
-
-        // Act
-        var result = await controller.UpdateBook(999, inputBook);
-
-        // Assert
-        Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
@@ -205,22 +181,24 @@ public class BooksControllerTests
         // Arrange
         var mockService = new Mock<IBookService>();
 
-        var inputBook = new Book
+        int non_existent_id = 999;
+
+        var inputBookRequest = new BookRequest
         {
-            Id = 1,
             Title = "Clean Code",
             Author = "Robert C. Martin",
             Price = 35
         };
 
         mockService
-            .Setup(service => service.UpdateBookAsync(inputBook))
+            .Setup(service => service
+            .UpdateBookAsync(non_existent_id, inputBookRequest))
             .ReturnsAsync((Book)null);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = await controller.UpdateBook(1, inputBook);
+        var result = await controller.UpdateBook(non_existent_id, inputBookRequest);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);

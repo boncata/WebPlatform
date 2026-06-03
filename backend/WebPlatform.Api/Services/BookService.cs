@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 
 namespace WebPlatform.Api.Services;
@@ -23,8 +24,19 @@ public class BookService: IBookService
         return await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
     }
     
-    public async Task<Book> AddBookAsync(Book book)
+    public async Task<Book> AddBookAsync(BookRequest request)
     {
+        // Map the BookRequest DTO to a Book instance.
+        var book = new Book
+        {
+            ISBN = request.ISBN,
+            Title = request.Title,
+            Author = request.Author,
+            Description = request.Description,
+            Price = request.Price,
+            Condition = request.Condition
+        };
+
         // This only "schedules" the add. The book Id is automatically
         // set by PostgreSQL. For EF Core, adding the book does not
         // actually make the changes to the database, until we call
@@ -38,9 +50,9 @@ public class BookService: IBookService
         return book;
     }
 
-    public async Task<Book?> UpdateBookAsync(Book book)
+    public async Task<Book?> UpdateBookAsync(int id, BookRequest bookRequest)
     {
-        var existingBook = await _context.Books.FindAsync(book.Id);
+        var existingBook = await _context.Books.FindAsync(id);
 
         if (existingBook == null)
             // The book was not found, cannot update.
@@ -48,12 +60,12 @@ public class BookService: IBookService
         else
         {
             // Update the properties of the existing book with the new values.
-            existingBook.ISBN = book.ISBN;
-            existingBook.Title = book.Title;
-            existingBook.Author = book.Author;
-            existingBook.Description = book.Description;
-            existingBook.Price = book.Price;
-            existingBook.Condition = book.Condition;
+            existingBook.ISBN = bookRequest.ISBN;
+            existingBook.Title = bookRequest.Title;
+            existingBook.Author = bookRequest.Author;
+            existingBook.Description = bookRequest.Description;
+            existingBook.Price = bookRequest.Price;
+            existingBook.Condition = bookRequest.Condition;
 
             // Save the changes to the database.
             await _context.SaveChangesAsync();
@@ -77,6 +89,5 @@ public class BookService: IBookService
             // Return true, as the delete was successful.
             return true;
         }
-
     }
 }

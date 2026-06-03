@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 using WebPlatform.Api.Services;
 
@@ -34,9 +35,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateBook(Book book)
+    public async Task<IActionResult> CreateBook(BookRequest request)
     {
-        var created = await _service.AddBookAsync(book);
+        var created = await _service.AddBookAsync(request);
 
         // Automatically create the http request route, instead of using
         // something like $"/api/books/{created.Id}". This makes code more robust.
@@ -44,12 +45,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateBook(int id, Book book)
+    public async Task<IActionResult> UpdateBook(int id, BookRequest request)
     {
-        if (id != book.Id)
-            return BadRequest();
-
-        var updated = await _service.UpdateBookAsync(book);
+        var updated = await _service.UpdateBookAsync(id, request);
 
         if (updated == null)
             return NotFound();
