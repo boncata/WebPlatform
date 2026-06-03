@@ -9,7 +9,7 @@ namespace WebPlatform.Tests.Unit.Controllers;
 public class BooksControllerTests
 {
     [Fact]
-    public void GetBook_ShouldReturnOk_WhenBookExists()
+    public async Task GetBook_ShouldReturnOk_WhenBookExists()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
@@ -26,13 +26,13 @@ public class BooksControllerTests
         };
 
         mockService
-            .Setup(service => service.GetBook(1))
-            .Returns(book);
+            .Setup(service => service.GetBookAsync(1))
+            .ReturnsAsync(book);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.GetBook(1);
+        var result = await controller.GetBook(1);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -43,26 +43,26 @@ public class BooksControllerTests
     }
 
     [Fact]
-    public void GetBook_ShouldReturnNotFound_WhenBookDoesNotExist()
+    public async Task GetBook_ShouldReturnNotFound_WhenBookDoesNotExist()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
 
         mockService
-            .Setup(service => service.GetBook(999))
-            .Returns((Book?)null);
+            .Setup(service => service.GetBookAsync(999))
+            .ReturnsAsync((Book?)null);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.GetBook(999);
+        var result = await controller.GetBook(999);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
-    public void AddBook_ShouldReturnOk_WhenBookIsCreated()
+    public async Task AddBook_ShouldReturnOk_WhenBookIsCreated()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
@@ -83,13 +83,13 @@ public class BooksControllerTests
         };
 
         mockService
-            .Setup(service => service.AddBook(inputBook))
-            .Returns(createdBook);
+            .Setup(service => service.AddBookAsync(inputBook))
+            .ReturnsAsync(createdBook);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.CreateBook(inputBook);
+        var result = await controller.CreateBook(inputBook);
 
         // Assert
         var okResult = Assert.IsType<CreatedAtActionResult>(result);
@@ -100,45 +100,45 @@ public class BooksControllerTests
     }
 
     [Fact]
-    public void DeleteBook_ShouldReturnOk_WhenBookIsDeleted()
+    public async Task DeleteBook_ShouldReturnOk_WhenBookIsDeleted()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
 
         mockService
-            .Setup(service => service.DeleteBook(1))
-            .Returns(true);
+            .Setup(service => service.DeleteBookAsync(1))
+            .ReturnsAsync(true);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.DeleteBook(1);
+        var result = await controller.DeleteBook(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
     }
 
     [Fact]
-    public void DeleteBook_ShouldReturnNotFound_WhenBookDoesNotExist()
+    public async Task DeleteBook_ShouldReturnNotFound_WhenBookDoesNotExist()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
 
         mockService
-            .Setup(service => service.DeleteBook(999))
-            .Returns(false);
+            .Setup(service => service.DeleteBookAsync(999))
+            .ReturnsAsync(false);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.DeleteBook(999);
+        var result = await controller.DeleteBook(999);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
-    public void UpdateBook_ShouldReturnOk_WhenBookIsUpdated()
+    public async Task UpdateBook_ShouldReturnOk_WhenBookIsUpdated()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
@@ -160,13 +160,13 @@ public class BooksControllerTests
         };
 
         mockService
-            .Setup(service => service.UpdateBook(inputBook))
-            .Returns(updatedBook);
+            .Setup(service => service.UpdateBookAsync(inputBook))
+            .ReturnsAsync(updatedBook);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.UpdateBook(1, inputBook);
+        var result = await controller.UpdateBook(1, inputBook);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -177,7 +177,7 @@ public class BooksControllerTests
     }
 
     [Fact]
-    public void UpdateBook_ShouldReturnBadRequest_WhenIdMismatch()
+    public async Task UpdateBook_ShouldReturnBadRequest_WhenIdMismatch()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
@@ -193,14 +193,14 @@ public class BooksControllerTests
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.UpdateBook(999, inputBook);
+        var result = await controller.UpdateBook(999, inputBook);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
     }
 
     [Fact]
-    public void UpdateBook_ShouldReturnNotFound_WhenBookDoesNotExist()
+    public async Task UpdateBook_ShouldReturnNotFound_WhenBookDoesNotExist()
     {
         // Arrange
         var mockService = new Mock<IBookService>();
@@ -214,13 +214,13 @@ public class BooksControllerTests
         };
 
         mockService
-            .Setup(service => service.UpdateBook(inputBook))
-            .Returns((Book)null);
+            .Setup(service => service.UpdateBookAsync(inputBook))
+            .ReturnsAsync((Book)null);
 
         var controller = new BooksController(mockService.Object);
 
         // Act
-        var result = controller.UpdateBook(1, inputBook);
+        var result = await controller.UpdateBook(1, inputBook);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);

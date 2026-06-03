@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
 using WebPlatform.Api.Models;
 
@@ -12,29 +13,34 @@ public class BookService: IBookService
         _context = context;
     }
     
-    public IEnumerable<Book> GetBooks()
+    public async Task<IEnumerable<Book>> GetBooksAsync()
     {
-        return _context.Books.ToList();
+        return await _context.Books.ToListAsync();
     }
 
-    public Book? GetBook(int id)
+    public async Task<Book?> GetBookAsync(int id)
     {
-        return _context.Books.FirstOrDefault(b => b.Id == id);
+        return await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
     }
     
-    public Book AddBook(Book book)
+    public async Task<Book> AddBookAsync(Book book)
     {
-        // This only "schedules" the add. The book Id is automatically set by PostgreSQL.
+        // This only "schedules" the add. The book Id is automatically
+        // set by PostgreSQL. For EF Core, adding the book does not
+        // actually make the changes to the database, until we call
+        // SaveChanges. Therefore, we can keep Add to be synchronous,
+        // and make the method asynchronous by making SaveChangesAsync
+        // asynchronous.
         _context.Books.Add(book);
         // This actually makes the changes to the database.
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return book;
     }
 
-    public Book? UpdateBook(Book book)
+    public async Task<Book?> UpdateBookAsync(Book book)
     {
-        var existingBook = _context.Books.Find(book.Id);
+        var existingBook = await _context.Books.FindAsync(book.Id);
 
         if (existingBook == null)
             // The book was not found, cannot update.
@@ -50,15 +56,15 @@ public class BookService: IBookService
             existingBook.Condition = book.Condition;
 
             // Save the changes to the database.
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return existingBook;
         }
     }
 
-    public bool DeleteBook(int id)
+    public async Task<bool> DeleteBookAsync(int id)
     {
-        var book = _context.Books.Find(id);
+        var book = await _context.Books.FindAsync(id);
 
         if (book == null)
             // The book was not found, cannot delete.
@@ -67,7 +73,7 @@ public class BookService: IBookService
         {
             // Schedule the delete, then save the changes to the database.
             _context.Books.Remove(book);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             // Return true, as the delete was successful.
             return true;
         }

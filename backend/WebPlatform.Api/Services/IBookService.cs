@@ -6,13 +6,13 @@ namespace WebPlatform.Api.Services;
 // any and all book services that we have.
 public interface IBookService
 {
-    IEnumerable<Book> GetBooks();
+    Task<IEnumerable<Book>> GetBooksAsync();
 
-    Book? GetBook(int id);
+    Task<Book?> GetBookAsync(int id);
 
-    Book AddBook(Book book);
+    Task<Book> AddBookAsync(Book book);
 
-    Book? UpdateBook(Book book);
+    Task<Book?> UpdateBookAsync(Book book);
 
-    bool DeleteBook(int id);
+    Task<bool> DeleteBookAsync(int id);
 }

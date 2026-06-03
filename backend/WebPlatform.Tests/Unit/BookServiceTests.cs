@@ -17,7 +17,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void AddBook_ShouldAddBookToDatabase()
+    public async Task AddBook_ShouldAddBookToDatabase()
     {
         // Arrange
         var context = CreateDbContext();
@@ -34,7 +34,7 @@ public class BookServiceTests
         };
 
         // Act
-        var result = service.AddBook(book);
+        var result = await service.AddBookAsync(book);
 
         // Assert
         Assert.NotNull(result);
@@ -48,7 +48,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void GetBook_ShouldReturnCorrectBook()
+    public async Task GetBook_ShouldReturnCorrectBook()
     {
         // Arrange
         var context = CreateDbContext();
@@ -69,7 +69,7 @@ public class BookServiceTests
         var service = new BookService(context);
 
         // Act
-        var result = service.GetBook(book.Id);
+        var result = await service.GetBookAsync(book.Id);
 
         // Assert
         Assert.NotNull(result);
@@ -82,7 +82,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void GetBook_ShouldReturnNull_WhenBookDoesNotExist()
+    public async Task GetBook_ShouldReturnNull_WhenBookDoesNotExist()
     {
         // Arrange
         var context = CreateDbContext();
@@ -91,14 +91,14 @@ public class BookServiceTests
         int nonExistingId = 999;
 
         // Act
-        var result = service.GetBook(nonExistingId);
+        var result = await service.GetBookAsync(nonExistingId);
 
         // Assert
         Assert.Null(result);
     }
 
     [Fact]
-    public void GetBooks_ShouldReturnAllBooks()
+    public async Task GetBooks_ShouldReturnAllBooks()
     {
         // Arrange
         var context = CreateDbContext();
@@ -131,7 +131,7 @@ public class BookServiceTests
         var service = new BookService(context);
 
         // Act
-        var result = service.GetBooks();
+        var result = await service.GetBooksAsync();
 
         // Assert
         Assert.NotNull(result);
@@ -142,7 +142,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void DeleteBook_ShouldRemoveBookFromDatabase()
+    public async Task DeleteBook_ShouldRemoveBookFromDatabase()
     {
         // Arrange
         var context = CreateDbContext();
@@ -166,7 +166,7 @@ public class BookServiceTests
         var service = new BookService(context);
 
         // Act
-        var result = service.DeleteBook(book.Id);
+        var result = await service.DeleteBookAsync(book.Id);
 
         // Assert
         Assert.True(result);
@@ -174,7 +174,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void DeleteBook_ShouldReturnFalse_WhenBookDoesNotExist()
+    public async Task DeleteBook_ShouldReturnFalse_WhenBookDoesNotExist()
     {
         // Arrange
         var context = CreateDbContext();
@@ -183,7 +183,7 @@ public class BookServiceTests
         int nonExistingId = 999;
 
         // Act
-        var result = service.DeleteBook(nonExistingId);
+        var result = await service.DeleteBookAsync(nonExistingId);
 
         // Assert
         Assert.False(result);
@@ -217,7 +217,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void UpdateBook_ShouldReturnUpdatedBook_WhenBookIsUpdated()
+    public async Task UpdateBook_ShouldReturnUpdatedBook_WhenBookIsUpdated()
     {
         // Arrange
         var context = CreateDbContext();
@@ -250,7 +250,7 @@ public class BookServiceTests
         var service = new BookService(context);
 
         // Act
-        var result = service.UpdateBook(updatedBook);
+        var result = await service.UpdateBookAsync(updatedBook);
 
         // Assert
         Assert.NotNull(result);
@@ -262,7 +262,7 @@ public class BookServiceTests
     }
 
     [Fact]
-    public void UpdateBook_ShouldReturnNull_WhenBookDoesNotExist()
+    public async Task UpdateBook_ShouldReturnNull_WhenBookDoesNotExist()
     {
         // Arrange
         var context = CreateDbContext();
@@ -282,7 +282,7 @@ public class BookServiceTests
         };
 
         // Act
-        var result = service.UpdateBook(nonExistingBook);
+        var result = await service.UpdateBookAsync(nonExistingBook);
 
         // Assert
         Assert.Null(result);

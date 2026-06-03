@@ -16,16 +16,16 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetBooks()
+    public async Task<IActionResult> GetBooks()
     {
-        var books = _service.GetBooks();
+        var books = await _service.GetBooksAsync();
         return Ok(books);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetBook(int id)
+    public async Task<IActionResult> GetBook(int id)
     {
-        var book = _service.GetBook(id);
+        var book = await _service.GetBookAsync(id);
 
         if (book == null)
             return NotFound();
@@ -34,9 +34,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateBook(Book book)
+    public async Task<IActionResult> CreateBook(Book book)
     {
-        var created = _service.AddBook(book);
+        var created = await _service.AddBookAsync(book);
 
         // Automatically create the http request route, instead of using
         // something like $"/api/books/{created.Id}". This makes code more robust.
@@ -44,12 +44,12 @@ public class BooksController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateBook(int id, Book book)
+    public async Task<IActionResult> UpdateBook(int id, Book book)
     {
         if (id != book.Id)
             return BadRequest();
 
-        var updated = _service.UpdateBook(book);
+        var updated = await _service.UpdateBookAsync(book);
 
         if (updated == null)
             return NotFound();
@@ -58,9 +58,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteBook(int id)
+    public async Task<IActionResult> DeleteBook(int id)
     {
-        var deleted = _service.DeleteBook(id);
+        var deleted = await _service.DeleteBookAsync(id);
 
         // If the books was not found, return 404.
         if (!deleted)
