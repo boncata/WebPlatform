@@ -15,6 +15,9 @@ public class BookRequest
     public String? ISBN { get; set; }
     public String Title { get; set; } = "";
     public String Author { get; set; } = "";
+    public int? PublicationYear { get; set; }
+    public String Publisher { get; set; } = "";
+    public String Language { get; set; } = "";
     public String Description { get; set; } = "";
     public decimal Price { get; set; }
     public BookCondition Condition { get; set; }

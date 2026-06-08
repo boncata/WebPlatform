@@ -32,6 +32,9 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
             ISBN = "9780321125217",
             Title = "Domain-Driven Design",
             Author = "Eric Evans",
+            PublicationYear = 2003,
+            Publisher = "Addison-Wesley",
+            Language = "English",
             Description = "Domain-driven design principles",
             Price = 55,
             Condition = BookCondition.New
@@ -57,9 +60,13 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
             b => b.ISBN == "9780321125217" &&
                  b.Author == "Eric Evans" &&
                  b.Title == "Domain-Driven Design" &&
+                 b.PublicationYear == 2003 &&
+                 b.Publisher == "Addison-Wesley" &&
+                 b.Language == "English" &&
                  b.Description == "Domain-driven design principles" &&
                  b.Price == 55 &&
-                 b.Condition == BookCondition.New);
+                 b.Condition == BookCondition.New
+                 );
 
         // Cleanup: Delete the book we just created, to keep the database clean.
         // This is not ideal, but it is ok for the MVP. We will update this,

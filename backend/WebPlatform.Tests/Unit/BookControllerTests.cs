@@ -21,6 +21,9 @@ public class BooksControllerTests
             ISBN = "9780441172719",
             Title = "Dune",
             Author = "Frank Herbert",
+            PublicationYear = 1965,
+            Publisher = "Chilton Books",
+            Language = "English",
             Description = "Sci-fi classic",
             Price = 19.99m,
             Condition = BookCondition.Good

@@ -29,6 +29,9 @@ public class BookServiceTests
             ISBN = "9780441172719",
             Title = "Dune",
             Author = "Frank Herbert",
+            PublicationYear = 1965,
+            Publisher = "Chilton Books",
+            Language = "English",
             Description = "Sci-fi classic",
             Price = 19.99m,
             Condition = BookCondition.Good
@@ -40,8 +43,12 @@ public class BookServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(1, result.Id);
+        Assert.Equal("9780441172719", result.ISBN);
         Assert.Equal("Dune", result.Title);
         Assert.Equal("Frank Herbert", result.Author);
+        Assert.Equal(1965, result.PublicationYear);
+        Assert.Equal("Chilton Books", result.Publisher);
+        Assert.Equal("English", result.Language);
         Assert.Equal("Sci-fi classic", result.Description);
         Assert.Equal(19.99m, result.Price);
         Assert.Equal(BookCondition.Good, result.Condition);
@@ -59,6 +66,9 @@ public class BookServiceTests
             ISBN = "9780441172719",
             Title = "The Pragmatic Programmer",
             Author = "Andrew Hunt",
+            PublicationYear = 1999,
+            Publisher = "Addison-Wesley",
+            Language = "English",
             Description = "Practical programming advice",
             Price = 45,
             Condition = BookCondition.Excellent
@@ -75,8 +85,12 @@ public class BookServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(book.Id, result.Id);
+        Assert.Equal("9780441172719", result.ISBN);
         Assert.Equal("The Pragmatic Programmer", result.Title);
         Assert.Equal("Andrew Hunt", result.Author);
+        Assert.Equal(1999, result.PublicationYear);
+        Assert.Equal("Addison-Wesley", result.Publisher);
+        Assert.Equal("English", result.Language);
         Assert.Equal("Practical programming advice", result.Description);
         Assert.Equal(45, result.Price);
         Assert.Equal(BookCondition.Excellent, result.Condition);
@@ -111,6 +125,9 @@ public class BookServiceTests
                 ISBN = "9780441172719",
                 Title = "Dune",
                 Author = "Frank Herbert",
+                PublicationYear = 1965,
+                Publisher = "Chilton Books",
+                Language = "English",
                 Description = "Sci-fi classic",
                 Price = 19.99m,
                 Condition = BookCondition.New
@@ -120,6 +137,9 @@ public class BookServiceTests
                 ISBN = "9780441172719",
                 Title = "The Pragmatic Programmer",
                 Author = "Andrew Hunt",
+                PublicationYear = 1999,
+                Publisher = "Addison-Wesley",
+                Language = "English",
                 Description = "Practical programming advice",
                 Price = 10,
                 Condition = BookCondition.Poor
@@ -153,6 +173,9 @@ public class BookServiceTests
             ISBN = "9780441172719",
             Title = "Dune",
             Author = "Frank Herbert",
+            PublicationYear = 1965,
+            Publisher = "Chilton Books",
+            Language = "English",
             Description = "Sci-fi classic",
             Price = 19.99m,
             Condition = BookCondition.Good
@@ -231,6 +254,9 @@ public class BookServiceTests
             ISBN = "9780441172719",
             Title = "Dune",
             Author = "Frank Herbert",
+            PublicationYear = 1965,
+            Publisher = "Chilton Books",
+            Language = "English",
             Description = "Sci-fi classic",
             Price = 19.99m,
             Condition = BookCondition.Good
@@ -244,6 +270,9 @@ public class BookServiceTests
             ISBN = "9780441172719",
             Title = "Dune - Updated",
             Author = "Frank Herbert",
+            PublicationYear = 1965,
+            Publisher = "Chilton Books - Updated",
+            Language = "Pirate-English",
             Description = "Sci-fi classic - Updated",
             Price = 29.99m,
             Condition = BookCondition.Excellent
@@ -260,6 +289,9 @@ public class BookServiceTests
         Assert.Equal("Dune - Updated", updatedBookRequest.Title);
         Assert.Equal("Sci-fi classic - Updated", updatedBookRequest.Description);
         Assert.Equal(book.ISBN, result.ISBN);
+        Assert.Equal("Chilton Books - Updated", result.Publisher);
+        Assert.Equal("Pirate-English", result.Language);
+        Assert.Equal(29.99m, result.Price);
         Assert.Equal(BookCondition.Excellent, result.Condition);
     }
 

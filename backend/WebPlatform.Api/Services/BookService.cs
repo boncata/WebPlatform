@@ -32,6 +32,9 @@ public class BookService: IBookService
             ISBN = request.ISBN,
             Title = request.Title,
             Author = request.Author,
+            PublicationYear = request.PublicationYear,
+            Publisher = request.Publisher,
+            Language = request.Language,
             Description = request.Description,
             Price = request.Price,
             Condition = request.Condition
@@ -63,6 +66,9 @@ public class BookService: IBookService
             existingBook.ISBN = bookRequest.ISBN;
             existingBook.Title = bookRequest.Title;
             existingBook.Author = bookRequest.Author;
+            existingBook.PublicationYear = bookRequest.PublicationYear;
+            existingBook.Publisher = bookRequest.Publisher;
+            existingBook.Language = bookRequest.Language;
             existingBook.Description = bookRequest.Description;
             existingBook.Price = bookRequest.Price;
             existingBook.Condition = bookRequest.Condition;
