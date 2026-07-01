@@ -112,54 +112,52 @@ public class BookServiceTests
         Assert.Null(result);
     }
 
-    [Fact]
-    public async Task GetBooks_ShouldReturnAllBooks()
+    [Theory]
+    [InlineData(30, 3, 1)]
+    [InlineData(30, 5, 2)]
+    public async Task GetBooks_ReturnsCorrectData_WhenCalledWithSpecificPageNumberAndSize(
+        int num_books, int page_size, int page_number)
     {
         // Arrange
         var context = CreateDbContext();
 
-        var books = new List<Book>
+        var books = new List<Book>();
+        for (int i = 1; i <= num_books; i++)
         {
-            new Book
+            books.Add(new Book
             {
-                ISBN = "9780441172719",
-                Title = "Dune",
-                Author = "Frank Herbert",
-                PublicationYear = 1965,
-                Publisher = "Chilton Books",
+                ISBN = $"97804411727{i:D2}",
+                Title = $"Book {i}",
+                Author = $"Author {i}",
+                PublicationYear = 2000 + i,
+                Publisher = $"Publisher {i}",
                 Language = "English",
-                Description = "Sci-fi classic",
-                Price = 19.99m,
+                Description = $"Description for Book {i}",
+                Price = 10 + i,
                 Condition = BookCondition.New
-            },
-            new Book
-            {
-                ISBN = "9780441172719",
-                Title = "The Pragmatic Programmer",
-                Author = "Andrew Hunt",
-                PublicationYear = 1999,
-                Publisher = "Addison-Wesley",
-                Language = "English",
-                Description = "Practical programming advice",
-                Price = 10,
-                Condition = BookCondition.Poor
-            }
-        };
+            });
+        }
 
         context.Books.AddRange(books);
         context.SaveChanges();
 
         var service = new BookService(context);
 
+        var queryParams = new BookQueryParameters
+        {
+            Page = page_number,
+            PageSize = page_size
+        };
+
         // Act
-        var result = await service.GetBooksAsync();
+        var result = await service.GetBooksAsync(queryParams);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Count());
-
-        Assert.Contains(result, b => b.Title == "Dune");
-        Assert.Contains(result, b => b.Title == "The Pragmatic Programmer");
+        Assert.Equal(num_books, result.TotalCount);
+        Assert.Equal(page_number, result.Page);
+        Assert.Equal(page_size, result.PageSize);
+        Assert.Equal((page_number - 1) * page_size + 1, result.Items.First().Id);
+        Assert.Contains(result.Items, b => b.Title == $"Book {(page_number - 1) * page_size + 1}");
     }
 
     [Fact]

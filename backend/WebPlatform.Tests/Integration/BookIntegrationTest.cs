@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
 
 namespace WebPlatform.Tests.Integration;
@@ -23,8 +25,10 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         _client = factory.CreateClient();
     }
 
-    [Fact]
-    public async Task CreateBook_ThenGetBooks_BookShouldPersist()
+    [Theory]
+    [InlineData("/api/books", 1, 20)]
+    [InlineData("/api/books?page=2&pageSize=5", 2, 5)]
+    public async Task CreateBook_ThenGetBooksWithPagination_BookShouldPersist(string url, int page_number, int page_size)
     {
         // Arrange
         var newBook = new Book
@@ -50,30 +54,47 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         postResponse.EnsureSuccessStatusCode();
 
         // Act — GET
-        var books = await _client.GetFromJsonAsync<List<Book>>(
-            "/api/books");
+        var getResponse = await _client.GetAsync(url);
 
         // Assert
-        Assert.NotNull(books);
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var queryResult = getResponse.Content.ReadFromJsonAsync<PagedResult<Book>>().Result;
+
+        Assert.NotNull(queryResult);
+        Assert.Equal(page_number, queryResult.Page);
+        Assert.Equal(page_size, queryResult.PageSize);
         Assert.Contains(
-            books,
+            queryResult.Items,
             b => b.ISBN == "9780321125217" &&
-                 b.Author == "Eric Evans" &&
-                 b.Title == "Domain-Driven Design" &&
-                 b.PublicationYear == 2003 &&
-                 b.Publisher == "Addison-Wesley" &&
-                 b.Language == "English" &&
-                 b.Description == "Domain-driven design principles" &&
-                 b.Price == 55 &&
-                 b.Condition == BookCondition.New
-                 );
+                b.Author == "Eric Evans" &&
+                b.Title == "Domain-Driven Design" &&
+                b.PublicationYear == 2003 &&
+                b.Publisher == "Addison-Wesley" &&
+                b.Language == "English" &&
+                b.Description == "Domain-driven design principles" &&
+                b.Price == 55 &&
+                b.Condition == BookCondition.New
+                    );
 
         // Cleanup: Delete the book we just created, to keep the database clean.
         // This is not ideal, but it is ok for the MVP. We will update this,
         // after the MVP completion.
         var deleteResponse = await _client.DeleteAsync(
-            $"/api/books/{books.First(b => b.ISBN == "9780321125217").Id}");
+            $"/api/books/{queryResult.Items.First(b => b.ISBN == "9780321125217").Id}");
         // Check that the delete was successful.
         deleteResponse.EnsureSuccessStatusCode();
+    }
+
+    [Theory]
+    [InlineData("/api/books?page=-1&pageSize=5")]
+    [InlineData("/api/books?page=1&pageSize=1000")]
+    public async Task GetBooks_WithInvalidPaginationParameters_ShouldReturnBadRequest(string url)
+    {
+        // Act
+        var response = await _client.GetAsync(url);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

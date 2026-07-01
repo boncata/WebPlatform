@@ -7,7 +7,7 @@ namespace WebPlatform.Api.Services;
 // any and all book services that we have.
 public interface IBookService
 {
-    Task<IEnumerable<Book>> GetBooksAsync();
+    Task<PagedResult<Book>> GetBooksAsync(BookQueryParameters queryParams);
 
     Task<Book?> GetBookAsync(int id);
 

@@ -14,9 +14,23 @@ public class BookService: IBookService
         _context = context;
     }
     
-    public async Task<IEnumerable<Book>> GetBooksAsync()
+    public async Task<PagedResult<Book>> GetBooksAsync(BookQueryParameters queryParams)
     {
-        return await _context.Books.ToListAsync();
+        var totalCount = await _context.Books.CountAsync();
+
+        var books = await _context.Books
+            .OrderBy(b => b.Id)
+            .Skip(queryParams.PageSize * (queryParams.Page - 1))
+            .Take(queryParams.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<Book>
+        {
+            Items = books,
+            Page = queryParams.Page,
+            PageSize = queryParams.PageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<Book?> GetBookAsync(int id)

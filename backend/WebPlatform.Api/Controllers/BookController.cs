@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using WebPlatform.Api.Dtos;
-using WebPlatform.Api.Models;
 using WebPlatform.Api.Services;
 
 namespace WebPlatform.Api.Controllers;
@@ -17,9 +16,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetBooks()
+    public async Task<IActionResult> GetBooks([FromQuery] BookQueryParameters queryParams)
     {
-        var books = await _service.GetBooksAsync();
+        var books = await _service.GetBooksAsync(queryParams);
         return Ok(books);
     }
 
