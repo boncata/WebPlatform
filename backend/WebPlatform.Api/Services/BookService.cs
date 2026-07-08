@@ -16,9 +16,24 @@ public class BookService: IBookService
     
     public async Task<PagedResult<Book>> GetBooksAsync(BookQueryParameters queryParams)
     {
-        var totalCount = await _context.Books.CountAsync();
+        // Start with all books in the database. AsQueryable allows us to build a query
+        // that can be executed against the database. This is important for performance,
+        // as it allows us to only retrieve the data we need, rather than loading all books
+        // into memory and then filtering them. This is especially important for large datasets.
+        var books = _context.Books.AsQueryable();
 
-        var books = await _context.Books
+        // Search functionality: if the Search parameter is not null or whitespace,
+        // filter the books by Title or Author.
+        if (!string.IsNullOrWhiteSpace(queryParams.Search))
+        {
+            books = books.Where(b =>
+                b.Title.Contains(queryParams.Search) ||
+                b.Author.Contains(queryParams.Search));
+        }
+
+        var totalCount = await books.CountAsync();
+
+        var items = await books
             .OrderBy(b => b.Id)
             .Skip(queryParams.PageSize * (queryParams.Page - 1))
             .Take(queryParams.PageSize)
@@ -26,7 +41,7 @@ public class BookService: IBookService
 
         return new PagedResult<Book>
         {
-            Items = books,
+            Items = items,
             Page = queryParams.Page,
             PageSize = queryParams.PageSize,
             TotalCount = totalCount

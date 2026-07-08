@@ -20,7 +20,7 @@ public class BooksControllerTests
             Items = new List<Book>
             {
                 new Book { Id = 1, Title = "Dune", Author = "Frank Herbert" },
-                new Book { Id = 2, Title = "The Pragmatic Programmer", Author = "Andrew Hunt and David Thomas" }
+                new Book { Id = 2, Title = "The Pragmatic Programmer of Dune", Author = "Andrew Hunt and David Thomas" }
             },
             Page = 1,
             PageSize = 2,
@@ -30,7 +30,8 @@ public class BooksControllerTests
         var queryParams = new BookQueryParameters
         {
             Page = 1,
-            PageSize = 2
+            PageSize = 2,
+            Search = "Dune"
         };
 
         mockService

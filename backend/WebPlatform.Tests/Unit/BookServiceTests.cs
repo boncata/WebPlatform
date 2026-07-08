@@ -160,6 +160,35 @@ public class BookServiceTests
         Assert.Contains(result.Items, b => b.Title == $"Book {(page_number - 1) * page_size + 1}");
     }
 
+    [Theory]
+    [InlineData("C#", 2)]
+    [InlineData("Java", 1)]
+    [InlineData("Programming", 2)]
+    [InlineData("Dick Fanny", 1)]
+    public async Task GetBooks_ShouldReturnBooksThatContainSearchString_WhenSearchParameterIsProvided(string search, int expectedCount){
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "C# Programming", Author = "Dick Fanny" },
+            new Book { Title = "C# Development", Author = "Kelly Rowland" },
+            new Book { Title = "Java Programming", Author = "Bruce Dickinson" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { Search = search };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
     [Fact]
     public async Task DeleteBook_ShouldRemoveBookFromDatabase()
     {

@@ -26,8 +26,8 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
     }
 
     [Theory]
-    [InlineData("/api/books", 1, 20)]
-    [InlineData("/api/books?page=2&pageSize=5", 2, 5)]
+    [InlineData("/api/books?page=2&pageSize=5", 2, 5)] // test the pagination functionality
+    [InlineData("/api/books?search=Design", 1, 20)] // test the search functionality and default pagination values
     public async Task CreateBook_ThenGetBooksWithPagination_BookShouldPersist(string url, int page_number, int page_size)
     {
         // Arrange

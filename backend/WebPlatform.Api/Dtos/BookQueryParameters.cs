@@ -16,4 +16,8 @@ public class BookQueryParameters
 
     [Range(1, 100)]
     public int PageSize { get; set; } = 20;
+
+    // Search text field. Parameter is optional, so it can be null. If it is not null,
+    // we will filter the books by the search text.
+    public string? Search { get; set; }
 }
