@@ -89,24 +89,22 @@ public class BookService: IBookService
         if (existingBook == null)
             // The book was not found, cannot update.
             return null;
-        else
-        {
-            // Update the properties of the existing book with the new values.
-            existingBook.ISBN = bookRequest.ISBN;
-            existingBook.Title = bookRequest.Title;
-            existingBook.Author = bookRequest.Author;
-            existingBook.PublicationYear = bookRequest.PublicationYear;
-            existingBook.Publisher = bookRequest.Publisher;
-            existingBook.Language = bookRequest.Language;
-            existingBook.Description = bookRequest.Description;
-            existingBook.Price = bookRequest.Price;
-            existingBook.Condition = bookRequest.Condition;
 
-            // Save the changes to the database.
-            await _context.SaveChangesAsync();
+        // Update the properties of the existing book with the new values.
+        existingBook.ISBN = bookRequest.ISBN;
+        existingBook.Title = bookRequest.Title;
+        existingBook.Author = bookRequest.Author;
+        existingBook.PublicationYear = bookRequest.PublicationYear;
+        existingBook.Publisher = bookRequest.Publisher;
+        existingBook.Language = bookRequest.Language;
+        existingBook.Description = bookRequest.Description;
+        existingBook.Price = bookRequest.Price;
+        existingBook.Condition = bookRequest.Condition;
 
-            return existingBook;
-        }
+        // Save the changes to the database.
+        await _context.SaveChangesAsync();
+
+        return existingBook;
     }
 
     public async Task<bool> DeleteBookAsync(int id)
@@ -116,13 +114,11 @@ public class BookService: IBookService
         if (book == null)
             // The book was not found, cannot delete.
             return false;
-        else
-        {
-            // Schedule the delete, then save the changes to the database.
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
-            // Return true, as the delete was successful.
-            return true;
-        }
+
+        // Schedule the delete, then save the changes to the database.
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        // Return true, as the delete was successful.
+        return true;
     }
 }
