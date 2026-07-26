@@ -18,7 +18,7 @@ function App() {
   const loadBooks = async () => {
     try {
       const data = await getBooks();
-      setBooks(data);
+      setBooks(data.items);
     } catch (error) {
       console.error("Error loading books:", error);
     }
@@ -30,7 +30,7 @@ function App() {
 
   return (
     <div>
-      <h1>Books</h1>
+      <h1>The first 10 books in the database</h1>
 
       <BookForm onBookCreated={loadBooks} />
 

@@ -60,13 +60,29 @@ describe("App integration", () => {
     ];
 
     booksApi.getBooks
-      .mockResolvedValueOnce(booksBefore) // First getBooks() call returns initial list
-      .mockResolvedValueOnce(booksAfter); // Second getBooks() call returns updated list
+      // First getBooks() call returns initial page.
+      .mockResolvedValueOnce({
+        items: booksBefore,
+        page: 1,
+        pageSize: 10,
+        totalCount: booksBefore.length
+      })
+      // Second getBooks() call returns updated page.
+      .mockResolvedValueOnce({
+        items: booksAfter,
+        page: 1,
+        pageSize: 10,
+        totalCount: booksAfter.length
+      });
 
     booksApi.createBook
       .mockResolvedValue({});
 
     render(<App />);
+
+    expect(
+      screen.getByText("The first 10 books in the database")
+    ).toBeInTheDocument();
 
     expect(
       // Wait for the first book to be rendered after initial fetch.
