@@ -40,6 +40,13 @@ The project requires .NET 10. For more information, see the
 The API requires Entity Framework CLI Tools. To run the tests, you need xUnit and Moq.
 These requirements are outline in the ``.cproj`` file of each project.
 
+The EF Core CLI tool (``dotnet ef``) is not bundled with the .NET SDK and must
+be installed separately:
+
+```Bash
+dotnet tool install --global dotnet-ef
+```
+
 ## PostgreSQL
 After installing PostgreSQL, it needs to be configured with the following instructions.
 
@@ -90,17 +97,39 @@ Then exit the PostgreSQL console.
 From the project root, run:
 
 ```Bash
-dotnet ef database update --project src/WebPlatform.Api
+dotnet ef database update --project backend/WebPlatform.Api
 ```
 
 ## Configuration
-Update the "DefaultConfiguration" field in ``src/WebPlatform.Api/appsettings.json``
-to reflect the ``username`` and ``password`` set in the previous section.
+The connection string is **not** stored in ``appsettings.json`` — that file is
+committed to source control and must never contain real credentials. Instead,
+provide it via the ``ConnectionStrings__DefaultConnection`` environment
+variable (the double underscore represents the ``:`` nesting separator that
+.NET configuration uses internally, since most shells don't allow ``:`` in
+variable names).
+
+Before running the backend or its tests, export the connection string in
+your shell, using the ``username``/``password`` you configured above:
+
+```Bash
+export ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=webplatform;Username=webplatform_user;Password=YourStrongPassword"
+```
+
+On Windows PowerShell, the equivalent is:
+
+```PowerShell
+$env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=webplatform;Username=webplatform_user;Password=YourStrongPassword"
+```
+
+This only lasts for the current terminal session. To avoid re-exporting it
+every time, add the ``export`` line to your shell's startup file (e.g.
+``~/.bashrc`` or ``~/.zshrc``) — just make sure that file itself is never
+committed anywhere shared.
 
 ---
 
 # Frontend Requirements
-The frontend is located in ``frontend/webplatform-ui``.
+The frontend is located in ``frontend``.
 
 ## Node.js
 
@@ -108,7 +137,7 @@ Install ``Node.js`` and ``npm``. This project is currently built using Node.js,
 version 24 (LTS).
 
 ## Project dependencies
-Navigate to frontend directory ``frontend/webplatform-ui``. Install the required packages:
+Navigate to the frontend directory ``frontend``. Install the required packages:
 
 ```Bash
 npm install
@@ -119,10 +148,12 @@ npm install
 # Run WebPlatform
 
 ## Backend (API)
-From the project root, run:
+Make sure ``ConnectionStrings__DefaultConnection`` is exported in your
+current shell (see the Configuration section above), then, from the project
+root, run:
 
 ```Bash
-dotnet run --project src/WebPlatform.Api
+dotnet run --project backend/WebPlatform.Api
 ```
 
 The API will start and Swagger UI will be available at:
@@ -143,7 +174,9 @@ The app will be available at:
 # Run Tests
 
 ## Backend
-From the project root, run:
+The integration tests run against the real database configured above, so
+``ConnectionStrings__DefaultConnection`` must be exported in your shell
+first (see the Configuration section). From the project root, run:
 
 ```Bash
 dotnet test
@@ -152,7 +185,7 @@ dotnet test
 This runs all automated tests inside ``WebPlatform.Tests``.
 
 ## Frontend
-From the ``/frontend/webplatform-ui`` folder, run:
+From the ``frontend`` folder, run:
 
 ```Bash
 npm run test

@@ -13,6 +13,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add the database context. This uses Entity Framework.
+// The GetConnectionString("DefaultConnection"), equivalent to
+// builder.Configuration["ConnectionStrings:DefaultConnection"] specifies using
+// that this is the configuration for connecting to the web service or the database.
+// If it does not find it in appsettings.json, it will eventually look for an environmental
+// variable with name "ConnectionStrings__DefaultConnection". The system is currently set
+// to use environmental variables for setting up connection credentials.
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
