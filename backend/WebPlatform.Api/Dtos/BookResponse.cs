@@ -9,16 +9,16 @@ namespace WebPlatform.Api.Dtos;
  * can evolve without automatically changing the public API contract.
 **/
 
-public class BookResponse
+public record BookResponse
 {
-    public int Id { get; set; }
-    public string? ISBN { get; set; }
-    public string Title { get; set; } = "";
-    public string Author { get; set; } = "";
-    public int? PublicationYear { get; set; }
-    public string Publisher { get; set; } = "";
-    public string Language { get; set; } = "";
-    public string Description { get; set; } = "";
-    public decimal Price { get; set; }
-    public BookCondition Condition { get; set; }
+    public int Id { get; init; }
+    public string? ISBN { get; init; }
+    public string Title { get; init; } = "";
+    public string Author { get; init; } = "";
+    public int? PublicationYear { get; init; }
+    public string Publisher { get; init; } = "";
+    public string Language { get; init; } = "";
+    public string Description { get; init; } = "";
+    public decimal Price { get; init; }
+    public BookCondition Condition { get; init; }
 }
