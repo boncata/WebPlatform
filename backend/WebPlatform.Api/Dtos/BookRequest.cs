@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using WebPlatform.Api.Models;
 
 namespace WebPlatform.Api.Dtos;
@@ -13,12 +14,28 @@ namespace WebPlatform.Api.Dtos;
 public class BookRequest
 {
     public string? ISBN { get; set; }
+
+    [Required]
     public string Title { get; set; } = "";
+
+    [Required]
     public string Author { get; set; } = "";
+
+    // Range chosen for PublicationYear: 1000 is comfortably before the
+    // printing press (~1440), so it rejects obvious garbage (negative
+    // numbers, stray digits) without any risk of rejecting a real book.
+    // 2100 is a soft "not absurdly far in the future" ceiling — it isn't
+    // tied to the current year because [Range] requires a compile-time
+    // constant and can't call DateTime.Now.
+    [Range(1000, 2100)]
     public int? PublicationYear { get; set; }
+
     public string Publisher { get; set; } = "";
     public string Language { get; set; } = "";
     public string Description { get; set; } = "";
+
+    [Range(0, double.MaxValue)]
     public decimal Price { get; set; }
+
     public BookCondition Condition { get; set; }
 }

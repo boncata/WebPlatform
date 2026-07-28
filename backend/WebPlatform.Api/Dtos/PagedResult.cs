@@ -1,5 +1,3 @@
-using WebPlatform.Api.Models;
-
 namespace WebPlatform.Api.Dtos;
 
 public class PagedResult<T>

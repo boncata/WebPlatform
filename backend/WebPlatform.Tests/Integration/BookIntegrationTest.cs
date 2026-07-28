@@ -97,4 +97,59 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task CreateBook_WithoutRequiredFields_ShouldReturnBadRequest()
+    {
+        // Arrange: Title and Author are required but left at their default empty string.
+        var invalidBook = new BookRequest
+        {
+            Price = 10
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/books", invalidBook);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateBook_WithNegativePrice_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var invalidBook = new BookRequest
+        {
+            Title = "Some Book",
+            Author = "Some Author",
+            Price = -5
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/books", invalidBook);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(999)] // below the allowed range
+    [InlineData(2101)] // above the allowed range
+    public async Task CreateBook_WithPublicationYearOutOfRange_ShouldReturnBadRequest(int year)
+    {
+        // Arrange
+        var invalidBook = new BookRequest
+        {
+            Title = "Some Book",
+            Author = "Some Author",
+            PublicationYear = year,
+            Price = 10
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/books", invalidBook);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }
