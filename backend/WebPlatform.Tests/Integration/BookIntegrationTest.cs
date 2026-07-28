@@ -59,7 +59,7 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        var queryResult = getResponse.Content.ReadFromJsonAsync<PagedResult<Book>>().Result;
+        var queryResult = getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>().Result;
 
         Assert.NotNull(queryResult);
         Assert.Equal(page_number, queryResult.Page);

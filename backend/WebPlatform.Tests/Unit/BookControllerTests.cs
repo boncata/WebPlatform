@@ -15,12 +15,12 @@ public class BooksControllerTests
         // Arrange
         var mockService = new Mock<IBookService>();
 
-        var pagedResult = new PagedResult<Book>
+        var pagedResult = new PagedResult<BookResponse>
         {
-            Items = new List<Book>
+            Items = new List<BookResponse>
             {
-                new Book { Id = 1, Title = "Dune", Author = "Frank Herbert" },
-                new Book { Id = 2, Title = "The Pragmatic Programmer of Dune", Author = "Andrew Hunt and David Thomas" }
+                new BookResponse { Id = 1, Title = "Dune", Author = "Frank Herbert" },
+                new BookResponse { Id = 2, Title = "The Pragmatic Programmer of Dune", Author = "Andrew Hunt and David Thomas" }
             },
             Page = 1,
             PageSize = 2,
@@ -45,7 +45,7 @@ public class BooksControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedQueryResult = Assert.IsType<PagedResult<Book>>(okResult.Value);
+        var returnedQueryResult = Assert.IsType<PagedResult<BookResponse>>(okResult.Value);
 
         Assert.Equal(2, returnedQueryResult.TotalCount);
         Assert.Equal(1, returnedQueryResult.Page);
@@ -61,7 +61,7 @@ public class BooksControllerTests
         // Arrange
         var mockService = new Mock<IBookService>();
 
-        var book = new Book
+        var bookResponse = new BookResponse
         {
             Id = 1,
             ISBN = "9780441172719",
@@ -77,7 +77,7 @@ public class BooksControllerTests
 
         mockService
             .Setup(service => service.GetBookAsync(1))
-            .ReturnsAsync(book);
+            .ReturnsAsync(bookResponse);
 
         var controller = new BooksController(mockService.Object);
 
@@ -86,7 +86,7 @@ public class BooksControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedBook = Assert.IsType<Book>(okResult.Value);
+        var returnedBook = Assert.IsType<BookResponse>(okResult.Value);
 
         Assert.Equal(1, returnedBook.Id);
         Assert.Equal("Dune", returnedBook.Title);
@@ -100,7 +100,7 @@ public class BooksControllerTests
 
         mockService
             .Setup(service => service.GetBookAsync(999))
-            .ReturnsAsync((Book?)null);
+            .ReturnsAsync((BookResponse?)null);
 
         var controller = new BooksController(mockService.Object);
 
@@ -117,14 +117,14 @@ public class BooksControllerTests
         // Arrange
         var mockService = new Mock<IBookService>();
 
-        var inputBook = new Book
+        var inputBookRequest = new BookRequest
         {
             Title = "Clean Architecture",
             Author = "Robert C. Martin",
             Price = 40
         };
 
-        var inputBookRequest = new BookRequest
+        var inputBookResponse = new BookResponse
         {
             Title = "Clean Architecture",
             Author = "Robert C. Martin",
@@ -133,7 +133,7 @@ public class BooksControllerTests
 
         mockService
             .Setup(service => service.AddBookAsync(inputBookRequest))
-            .ReturnsAsync(inputBook);
+            .ReturnsAsync(inputBookResponse);
 
         var controller = new BooksController(mockService.Object);
 
@@ -142,7 +142,7 @@ public class BooksControllerTests
 
         // Assert
         var okResult = Assert.IsType<CreatedAtActionResult>(result);
-        var returnedBook = Assert.IsType<Book>(okResult.Value);
+        var returnedBook = Assert.IsType<BookResponse>(okResult.Value);
 
         Assert.Equal("Clean Architecture", returnedBook.Title);
     }
@@ -199,7 +199,7 @@ public class BooksControllerTests
             Price = 35
         };
 
-        var bookReturn = new Book
+        var bookReturn = new BookResponse
         {
             Id = id,
             Title = "Clean Code",
@@ -218,7 +218,7 @@ public class BooksControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedBook = Assert.IsType<Book>(okResult.Value);
+        var returnedBook = Assert.IsType<BookResponse>(okResult.Value);
 
         Assert.Equal(id, returnedBook.Id);
         Assert.Equal("Clean Code", returnedBook.Title);
@@ -242,7 +242,7 @@ public class BooksControllerTests
         mockService
             .Setup(service => service
             .UpdateBookAsync(non_existent_id, inputBookRequest))
-            .ReturnsAsync((Book)null);
+            .ReturnsAsync((BookResponse?)null);
 
         var controller = new BooksController(mockService.Object);
 

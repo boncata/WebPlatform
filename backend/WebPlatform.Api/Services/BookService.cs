@@ -14,7 +14,7 @@ public class BookService: IBookService
         _context = context;
     }
     
-    public async Task<PagedResult<Book>> GetBooksAsync(BookQueryParameters queryParams)
+    public async Task<PagedResult<BookResponse>> GetBooksAsync(BookQueryParameters queryParams)
     {
         // Start with all books in the database. AsQueryable allows us to build a query
         // that can be executed against the database. This is important for performance,
@@ -39,21 +39,22 @@ public class BookService: IBookService
             .Take(queryParams.PageSize)
             .ToListAsync();
 
-        return new PagedResult<Book>
+        return new PagedResult<BookResponse>
         {
-            Items = items,
+            Items = items.Select(ToResponse).ToList(),
             Page = queryParams.Page,
             PageSize = queryParams.PageSize,
             TotalCount = totalCount
         };
     }
 
-    public async Task<Book?> GetBookAsync(int id)
+    public async Task<BookResponse?> GetBookAsync(int id)
     {
-        return await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+        var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+        return book == null ? null : ToResponse(book);
     }
-    
-    public async Task<Book> AddBookAsync(BookRequest request)
+
+    public async Task<BookResponse> AddBookAsync(BookRequest request)
     {
         // Map the BookRequest DTO to a Book instance.
         var book = new Book
@@ -79,10 +80,10 @@ public class BookService: IBookService
         // This actually makes the changes to the database.
         await _context.SaveChangesAsync();
 
-        return book;
+        return ToResponse(book);
     }
 
-    public async Task<Book?> UpdateBookAsync(int id, BookRequest bookRequest)
+    public async Task<BookResponse?> UpdateBookAsync(int id, BookRequest bookRequest)
     {
         var existingBook = await _context.Books.FindAsync(id);
 
@@ -104,7 +105,7 @@ public class BookService: IBookService
         // Save the changes to the database.
         await _context.SaveChangesAsync();
 
-        return existingBook;
+        return ToResponse(existingBook);
     }
 
     public async Task<bool> DeleteBookAsync(int id)
@@ -120,5 +121,24 @@ public class BookService: IBookService
         await _context.SaveChangesAsync();
         // Return true, as the delete was successful.
         return true;
+    }
+
+    // Maps the EF entity to the DTO returned by the API, so callers of
+    // this service never see the database model directly.
+    private static BookResponse ToResponse(Book book)
+    {
+        return new BookResponse
+        {
+            Id = book.Id,
+            ISBN = book.ISBN,
+            Title = book.Title,
+            Author = book.Author,
+            PublicationYear = book.PublicationYear,
+            Publisher = book.Publisher,
+            Language = book.Language,
+            Description = book.Description,
+            Price = book.Price,
+            Condition = book.Condition
+        };
     }
 }

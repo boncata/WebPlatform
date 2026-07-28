@@ -1,5 +1,4 @@
 using WebPlatform.Api.Dtos;
-using WebPlatform.Api.Models;
 
 namespace WebPlatform.Api.Services;
 
@@ -7,13 +6,13 @@ namespace WebPlatform.Api.Services;
 // any and all book services that we have.
 public interface IBookService
 {
-    Task<PagedResult<Book>> GetBooksAsync(BookQueryParameters queryParams);
+    Task<PagedResult<BookResponse>> GetBooksAsync(BookQueryParameters queryParams);
 
-    Task<Book?> GetBookAsync(int id);
+    Task<BookResponse?> GetBookAsync(int id);
 
-    Task<Book> AddBookAsync(BookRequest request);
+    Task<BookResponse> AddBookAsync(BookRequest request);
 
-    Task<Book?> UpdateBookAsync(int id, BookRequest bookRequest);
+    Task<BookResponse?> UpdateBookAsync(int id, BookRequest bookRequest);
 
     Task<bool> DeleteBookAsync(int id);
 }
