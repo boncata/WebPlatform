@@ -31,6 +31,25 @@ public class BookService: IBookService
                 b.Author.Contains(queryParams.Search));
         }
 
+        // Language filter: case-insensitive, since users may type the
+        // language name in any casing (e.g. "english" vs "English").
+        if (!string.IsNullOrWhiteSpace(queryParams.Language))
+        {
+            books = books.Where(b => b.Language.ToLower() == queryParams.Language.ToLower());
+        }
+
+        // Condition filter: exact match against the requested enum value.
+        if (queryParams.Condition.HasValue)
+        {
+            books = books.Where(b => b.Condition == queryParams.Condition.Value);
+        }
+
+        // Max price filter: only return books at or below the given price.
+        if (queryParams.MaxPrice.HasValue)
+        {
+            books = books.Where(b => b.Price <= queryParams.MaxPrice.Value);
+        }
+
         var totalCount = await books.CountAsync();
 
         var items = await books

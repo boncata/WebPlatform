@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using WebPlatform.Api.Models;
 
 namespace WebPlatform.Api.Dtos;
 
@@ -20,4 +21,13 @@ public class BookQueryParameters
     // Search text field. Parameter is optional, so it can be null. If it is not null,
     // we will filter the books by the search text.
     public string? Search { get; set; }
+
+    // Filtering parameters. All are optional; when null, the corresponding
+    // filter is skipped entirely and does not narrow down the results.
+    public string? Language { get; set; }
+
+    public BookCondition? Condition { get; set; }
+
+    [Range(0, double.MaxValue)]
+    public decimal? MaxPrice { get; set; }
 }

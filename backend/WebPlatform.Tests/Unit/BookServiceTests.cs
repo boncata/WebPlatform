@@ -189,6 +189,129 @@ public class BookServiceTests
         Assert.Equal(expectedCount, result.TotalCount);
     }
 
+    [Theory]
+    [InlineData("English", 2)]
+    [InlineData("english", 2)] // case-insensitive match
+    [InlineData("GERMAN", 1)]
+    [InlineData("French", 0)] // no books in this language
+    public async Task GetBooks_ShouldReturnBooksMatchingLanguage_WhenLanguageParameterIsProvided(string language, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Language = "English" },
+            new Book { Title = "Book 2", Author = "Author 2", Language = "English" },
+            new Book { Title = "Book 3", Author = "Author 3", Language = "German" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { Language = language };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
+    [Theory]
+    [InlineData(BookCondition.New, 2)]
+    [InlineData(BookCondition.Good, 1)]
+    [InlineData(BookCondition.Poor, 0)]
+    public async Task GetBooks_ShouldReturnBooksMatchingCondition_WhenConditionParameterIsProvided(BookCondition condition, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Condition = BookCondition.New },
+            new Book { Title = "Book 2", Author = "Author 2", Condition = BookCondition.New },
+            new Book { Title = "Book 3", Author = "Author 3", Condition = BookCondition.Good },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { Condition = condition };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
+    [Theory]
+    [InlineData(10, 1)]
+    [InlineData(20, 2)]
+    [InlineData(30, 3)]
+    [InlineData(5, 0)]
+    public async Task GetBooks_ShouldReturnBooksAtOrBelowMaxPrice_WhenMaxPriceParameterIsProvided(decimal maxPrice, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Price = 10 },
+            new Book { Title = "Book 2", Author = "Author 2", Price = 20 },
+            new Book { Title = "Book 3", Author = "Author 3", Price = 30 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { MaxPrice = maxPrice };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldCombineFilters_WhenMultipleParametersAreProvided()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            // Only this one matches every filter below.
+            new Book { Title = "Match", Author = "Author 1", Language = "English", Condition = BookCondition.New, Price = 10 },
+            new Book { Title = "Wrong Language", Author = "Author 2", Language = "German", Condition = BookCondition.New, Price = 10 },
+            new Book { Title = "Wrong Condition", Author = "Author 3", Language = "English", Condition = BookCondition.Poor, Price = 10 },
+            new Book { Title = "Too Expensive", Author = "Author 4", Language = "English", Condition = BookCondition.New, Price = 100 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters
+        {
+            Language = "english",
+            Condition = BookCondition.New,
+            MaxPrice = 50
+        };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(1, result.TotalCount);
+        Assert.Equal("Match", result.Items.First().Title);
+    }
+
     [Fact]
     public async Task DeleteBook_ShouldRemoveBookFromDatabase()
     {

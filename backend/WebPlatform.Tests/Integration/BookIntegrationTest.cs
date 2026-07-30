@@ -152,4 +152,59 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task CreateBook_ThenGetBooksWithFilters_ShouldReturnOnlyMatchingBook()
+    {
+        // Arrange: two books that differ in language, condition and price,
+        // so only one of them can satisfy all three filters at once.
+        var matchingBook = new Book
+        {
+            ISBN = "9780132350884",
+            Title = "Clean Code Filter Test",
+            Author = "Robert C. Martin",
+            Language = "English",
+            Condition = BookCondition.New,
+            Price = 20
+        };
+
+        var nonMatchingBook = new Book
+        {
+            ISBN = "9780134685991",
+            Title = "Effective Java Filter Test",
+            Author = "Joshua Bloch",
+            Language = "German",
+            Condition = BookCondition.Poor,
+            Price = 200
+        };
+
+        var postMatchingResponse = await _client.PostAsJsonAsync("/api/books", matchingBook);
+        postMatchingResponse.EnsureSuccessStatusCode();
+
+        var postNonMatchingResponse = await _client.PostAsJsonAsync("/api/books", nonMatchingBook);
+        postNonMatchingResponse.EnsureSuccessStatusCode();
+
+        // Act: filter by language (lowercase, to also exercise the
+        // case-insensitive comparison), condition and max price together.
+        var getResponse = await _client.GetAsync(
+            "/api/books?language=english&condition=New&maxPrice=50");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+
+        Assert.NotNull(queryResult);
+        Assert.Contains(queryResult.Items, b => b.ISBN == "9780132350884");
+        Assert.DoesNotContain(queryResult.Items, b => b.ISBN == "9780134685991");
+
+        // Cleanup.
+        var matchingId = queryResult.Items.First(b => b.ISBN == "9780132350884").Id;
+        (await _client.DeleteAsync($"/api/books/{matchingId}")).EnsureSuccessStatusCode();
+
+        var allBooksResponse = await _client.GetAsync("/api/books?search=Effective Java Filter Test");
+        var allBooksResult = await allBooksResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+        var nonMatchingId = allBooksResult!.Items.First(b => b.ISBN == "9780134685991").Id;
+        (await _client.DeleteAsync($"/api/books/{nonMatchingId}")).EnsureSuccessStatusCode();
+    }
 }
