@@ -438,6 +438,206 @@ public class BookServiceTests
     }
 
     [Fact]
+    public async Task GetBooks_ShouldSortByTitle_WhenSortByTitleIsProvided()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Charlie", Author = "Author 1" },
+            new Book { Title = "Alpha", Author = "Author 2" },
+            new Book { Title = "Bravo", Author = "Author 3" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+
+        // Act — ascending
+        var ascending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.Title,
+            SortOrder = SortDirection.Ascending
+        });
+
+        // Act — descending
+        var descending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.Title,
+            SortOrder = SortDirection.Descending
+        });
+
+        // Assert
+        Assert.Equal(["Alpha", "Bravo", "Charlie"], ascending.Items.Select(b => b.Title));
+        Assert.Equal(["Charlie", "Bravo", "Alpha"], descending.Items.Select(b => b.Title));
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldSortByPrice_WhenSortByPriceIsProvided()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Price = 30 },
+            new Book { Title = "Book 2", Author = "Author 2", Price = 10 },
+            new Book { Title = "Book 3", Author = "Author 3", Price = 20 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+
+        // Act — ascending
+        var ascending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.Price,
+            SortOrder = SortDirection.Ascending
+        });
+
+        // Act — descending
+        var descending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.Price,
+            SortOrder = SortDirection.Descending
+        });
+
+        // Assert
+        Assert.Equal([10m, 20m, 30m], ascending.Items.Select(b => b.Price));
+        Assert.Equal([30m, 20m, 10m], descending.Items.Select(b => b.Price));
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldSortByPublicationYear_WhenSortByPublicationYearIsProvided()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", PublicationYear = 2010 },
+            new Book { Title = "Book 2", Author = "Author 2", PublicationYear = 1990 },
+            new Book { Title = "Book 3", Author = "Author 3", PublicationYear = 2000 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+
+        // Act — ascending
+        var ascending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.PublicationYear,
+            SortOrder = SortDirection.Ascending
+        });
+
+        // Act — descending
+        var descending = await service.GetBooksAsync(new BookQueryParameters
+        {
+            SortBy = BookSortField.PublicationYear,
+            SortOrder = SortDirection.Descending
+        });
+
+        // Assert
+        Assert.Equal([1990, 2000, 2010], ascending.Items.Select(b => b.PublicationYear));
+        Assert.Equal([2010, 2000, 1990], descending.Items.Select(b => b.PublicationYear));
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldSortById_WhenSortByIsNotProvided()
+    {
+        // Arrange: regression test for the pre-sorting default behavior.
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Charlie", Author = "Author 1" },
+            new Book { Title = "Alpha", Author = "Author 2" },
+            new Book { Title = "Bravo", Author = "Author 3" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters();
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert: insertion order, i.e. by Id, unaffected by Title values.
+        Assert.Equal(["Charlie", "Alpha", "Bravo"], result.Items.Select(b => b.Title));
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldBreakTiesById_WhenSortFieldHasDuplicateValues()
+    {
+        // Arrange: several books share the same Price, so without a
+        // secondary sort key their relative order would be unreliable.
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book A", Author = "Author 1", Price = 10 },
+            new Book { Title = "Book B", Author = "Author 2", Price = 10 },
+            new Book { Title = "Book C", Author = "Author 3", Price = 10 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters
+        {
+            SortBy = BookSortField.Price,
+            SortOrder = SortDirection.Ascending
+        };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert: tied on Price, so the Id tie-breaker should keep them
+        // in insertion (Id) order.
+        Assert.Equal(["Book A", "Book B", "Book C"], result.Items.Select(b => b.Title));
+    }
+
+    [Fact]
+    public async Task GetBooks_ShouldCombineSortingWithFiltering_WhenBothAreProvided()
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Condition = BookCondition.New, Price = 30 },
+            new Book { Title = "Book 2", Author = "Author 2", Condition = BookCondition.Poor, Price = 5 },
+            new Book { Title = "Book 3", Author = "Author 3", Condition = BookCondition.New, Price = 10 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters
+        {
+            Condition = BookCondition.New,
+            SortBy = BookSortField.Price,
+            SortOrder = SortDirection.Descending
+        };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert: only the two BookCondition.New books, ordered by Price descending.
+        Assert.Equal(["Book 1", "Book 3"], result.Items.Select(b => b.Title));
+    }
+
+    [Fact]
     public async Task DeleteBook_ShouldRemoveBookFromDatabase()
     {
         // Arrange

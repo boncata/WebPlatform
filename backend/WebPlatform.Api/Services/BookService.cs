@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
 using WebPlatform.Api.Dtos;
@@ -71,8 +72,21 @@ public class BookService: IBookService
 
         var totalCount = await books.CountAsync();
 
-        var items = await books
-            .OrderBy(b => b.Id)
+        // Sort by the requested field, or fall back to Id order when no
+        // SortBy was given.
+        var orderedBooks = queryParams.SortBy switch
+        {
+            BookSortField.Title => ApplySortOrder(books, b => b.Title, queryParams.SortOrder),
+            BookSortField.Price => ApplySortOrder(books, b => b.Price, queryParams.SortOrder),
+            BookSortField.PublicationYear => ApplySortOrder(books, b => b.PublicationYear, queryParams.SortOrder),
+            _ => books.OrderBy(b => b.Id)
+        };
+
+        var items = await orderedBooks
+            // Id as a secondary sort key guarantees a stable, deterministic
+            // order across pages even when many books share the same value
+            // for the primary sort field (e.g. the same Price).
+            .ThenBy(b => b.Id)
             .Skip(queryParams.PageSize * (queryParams.Page - 1))
             .Take(queryParams.PageSize)
             .ToListAsync();
@@ -159,6 +173,34 @@ public class BookService: IBookService
         await _context.SaveChangesAsync();
         // Return true, as the delete was successful.
         return true;
+    }
+
+    /// <summary>
+    /// Applies ascending or descending ordering to <paramref name="books"/> based on
+    /// <paramref name="keySelector"/>. Returns <see cref="IOrderedQueryable{T}"/>
+    /// (not <see cref="IQueryable{T}"/>) so callers can chain <c>.ThenBy(...)</c>
+    /// afterwards, e.g. to add a tie-breaking sort key.
+    /// </summary>
+    /// <typeparam name="TKey">
+    /// The type of the property being sorted on (e.g. <see cref="string"/> for Title,
+    /// <see cref="decimal"/> for Price). Inferred automatically from
+    /// <paramref name="keySelector"/> at the call site, which is why one generic
+    /// method can replace a separate ascending/descending check per field.
+    /// </typeparam>
+    /// <param name="books">The query to sort, after any filtering has already been applied.</param>
+    /// <param name="keySelector">
+    /// The property to sort by, as an expression tree rather than a compiled delegate,
+    /// so EF Core can translate it into a SQL ORDER BY clause instead of pulling every
+    /// row into memory and sorting there.
+    /// </param>
+    /// <param name="sortOrder">Whether to sort ascending or descending.</param>
+    /// <returns>The books query with the requested ordering applied.</returns>
+    private static IOrderedQueryable<Book> ApplySortOrder<TKey>(
+        IQueryable<Book> books, Expression<Func<Book, TKey>> keySelector, SortDirection sortOrder)
+    {
+        return sortOrder == SortDirection.Descending
+            ? books.OrderByDescending(keySelector)
+            : books.OrderBy(keySelector);
     }
 
     // Maps the EF entity to the DTO returned by the API, so callers of

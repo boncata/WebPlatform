@@ -111,6 +111,63 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
     }
 
     [Fact]
+    public async Task GetBooks_WithInvalidSortByValue_ShouldReturnBadRequest()
+    {
+        // Act: "Foo" is not a member of the BookSortField enum.
+        var response = await _client.GetAsync("/api/books?sortBy=Foo");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateBooks_ThenGetBooksSortedByPriceDescending_ShouldReturnBooksInDescendingOrder()
+    {
+        // Arrange: two books that are easy to tell apart by price.
+        var cheaperBook = new Book
+        {
+            ISBN = "9780000000101",
+            Title = "Sort Test Cheaper Book",
+            Author = "Sort Test Author",
+            Price = 10
+        };
+
+        var pricierBook = new Book
+        {
+            ISBN = "9780000000102",
+            Title = "Sort Test Pricier Book",
+            Author = "Sort Test Author",
+            Price = 50
+        };
+
+        var postCheaperResponse = await _client.PostAsJsonAsync("/api/books", cheaperBook);
+        postCheaperResponse.EnsureSuccessStatusCode();
+
+        var postPricierResponse = await _client.PostAsJsonAsync("/api/books", pricierBook);
+        postPricierResponse.EnsureSuccessStatusCode();
+
+        // Act
+        var getResponse = await _client.GetAsync(
+            "/api/books?search=Sort Test&sortBy=Price&sortOrder=Descending");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+
+        Assert.NotNull(queryResult);
+        Assert.Equal(2, queryResult.Items.Count());
+        Assert.Equal("Sort Test Pricier Book", queryResult.Items.First().Title);
+        Assert.Equal("Sort Test Cheaper Book", queryResult.Items.Last().Title);
+
+        // Cleanup.
+        foreach (var book in queryResult.Items)
+        {
+            (await _client.DeleteAsync($"/api/books/{book.Id}")).EnsureSuccessStatusCode();
+        }
+    }
+
+    [Fact]
     public async Task CreateBook_WithoutRequiredFields_ShouldReturnBadRequest()
     {
         // Arrange: Title and Author are required but left at their default empty string.

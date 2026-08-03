@@ -40,4 +40,12 @@ public class BookQueryParameters
     // "not absurdly far in the future" ceiling.
     [Range(1000, 2100)]
     public int? PublicationYear { get; set; }
+
+    // Sorting parameters. When SortBy is null, results fall back to the
+    // default Id order. SortOrder defaults to Ascending rather than being
+    // nullable, since there's no meaningful difference between "not
+    // specified" and "ascending" for a direction.
+    public BookSortField? SortBy { get; set; }
+
+    public SortDirection SortOrder { get; set; } = SortDirection.Ascending;
 }
