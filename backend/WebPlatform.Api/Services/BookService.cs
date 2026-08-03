@@ -50,6 +50,25 @@ public class BookService: IBookService
             books = books.Where(b => b.Price <= queryParams.MaxPrice.Value);
         }
 
+        // ISBN filter: exact match, since an ISBN identifies a specific book.
+        if (!string.IsNullOrWhiteSpace(queryParams.ISBN))
+        {
+            books = books.Where(b => b.ISBN == queryParams.ISBN);
+        }
+
+        // Publisher filter: partial match, since publisher names are free
+        // text (e.g. "Wesley" should find "Addison-Wesley").
+        if (!string.IsNullOrWhiteSpace(queryParams.Publisher))
+        {
+            books = books.Where(b => b.Publisher.Contains(queryParams.Publisher));
+        }
+
+        // Publication year filter: exact match against a single year.
+        if (queryParams.PublicationYear.HasValue)
+        {
+            books = books.Where(b => b.PublicationYear == queryParams.PublicationYear.Value);
+        }
+
         var totalCount = await books.CountAsync();
 
         var items = await books

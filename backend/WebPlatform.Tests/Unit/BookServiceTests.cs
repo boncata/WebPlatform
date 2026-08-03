@@ -278,6 +278,90 @@ public class BookServiceTests
         Assert.Equal(expectedCount, result.TotalCount);
     }
 
+    [Theory]
+    [InlineData("9780132350884", 1)]
+    [InlineData("0000000000000", 0)] // no book has this ISBN
+    public async Task GetBooks_ShouldReturnBookMatchingIsbn_WhenIsbnParameterIsProvided(string isbn, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", ISBN = "9780132350884" },
+            new Book { Title = "Book 2", Author = "Author 2", ISBN = "9780134685991" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { ISBN = isbn };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
+    [Theory]
+    [InlineData("Wesley", 1)] // partial match
+    [InlineData("Penguin", 1)]
+    [InlineData("wesley", 0)] // Publisher matching is case-sensitive, unlike Language
+    [InlineData("Nonexistent", 0)]
+    public async Task GetBooks_ShouldReturnBooksMatchingPublisher_WhenPublisherParameterIsProvided(string publisher, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", Publisher = "Addison-Wesley" },
+            new Book { Title = "Book 2", Author = "Author 2", Publisher = "Penguin Random House" },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { Publisher = publisher };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
+    [Theory]
+    [InlineData(1999, 1)]
+    [InlineData(2020, 1)]
+    [InlineData(2005, 0)] // no book was published in this year
+    public async Task GetBooks_ShouldReturnBooksMatchingPublicationYear_WhenPublicationYearParameterIsProvided(int year, int expectedCount)
+    {
+        // Arrange
+        var context = CreateDbContext();
+
+        var books = new List<Book>
+        {
+            new Book { Title = "Book 1", Author = "Author 1", PublicationYear = 1999 },
+            new Book { Title = "Book 2", Author = "Author 2", PublicationYear = 2020 },
+        };
+
+        context.Books.AddRange(books);
+        context.SaveChanges();
+
+        var service = new BookService(context);
+        var queryParams = new BookQueryParameters { PublicationYear = year };
+
+        // Act
+        var result = await service.GetBooksAsync(queryParams);
+
+        // Assert
+        Assert.Equal(expectedCount, result.TotalCount);
+    }
+
     [Fact]
     public async Task GetBooks_ShouldCombineFilters_WhenMultipleParametersAreProvided()
     {
@@ -287,10 +371,48 @@ public class BookServiceTests
         var books = new List<Book>
         {
             // Only this one matches every filter below.
-            new Book { Title = "Match", Author = "Author 1", Language = "English", Condition = BookCondition.New, Price = 10 },
-            new Book { Title = "Wrong Language", Author = "Author 2", Language = "German", Condition = BookCondition.New, Price = 10 },
-            new Book { Title = "Wrong Condition", Author = "Author 3", Language = "English", Condition = BookCondition.Poor, Price = 10 },
-            new Book { Title = "Too Expensive", Author = "Author 4", Language = "English", Condition = BookCondition.New, Price = 100 },
+            new Book
+            {
+                Title = "Match", Author = "Author 1", ISBN = "9780000000001",
+                Publisher = "Addison-Wesley", PublicationYear = 2020,
+                Language = "English", Condition = BookCondition.New, Price = 10
+            },
+            new Book
+            {
+                Title = "Wrong Language", Author = "Author 2", ISBN = "9780000000001",
+                Publisher = "Addison-Wesley", PublicationYear = 2020,
+                Language = "German", Condition = BookCondition.New, Price = 10
+            },
+            new Book
+            {
+                Title = "Wrong Condition", Author = "Author 3", ISBN = "9780000000001",
+                Publisher = "Addison-Wesley", PublicationYear = 2020,
+                Language = "English", Condition = BookCondition.Poor, Price = 10
+            },
+            new Book
+            {
+                Title = "Too Expensive", Author = "Author 4", ISBN = "9780000000001",
+                Publisher = "Addison-Wesley", PublicationYear = 2020,
+                Language = "English", Condition = BookCondition.New, Price = 100
+            },
+            new Book
+            {
+                Title = "Wrong ISBN", Author = "Author 5", ISBN = "9780000000002",
+                Publisher = "Addison-Wesley", PublicationYear = 2020,
+                Language = "English", Condition = BookCondition.New, Price = 10
+            },
+            new Book
+            {
+                Title = "Wrong Publisher", Author = "Author 6", ISBN = "9780000000001",
+                Publisher = "Penguin", PublicationYear = 2020,
+                Language = "English", Condition = BookCondition.New, Price = 10
+            },
+            new Book
+            {
+                Title = "Wrong Publication Year", Author = "Author 7", ISBN = "9780000000001",
+                Publisher = "Addison-Wesley", PublicationYear = 1999,
+                Language = "English", Condition = BookCondition.New, Price = 10
+            },
         };
 
         context.Books.AddRange(books);
@@ -301,7 +423,10 @@ public class BookServiceTests
         {
             Language = "english",
             Condition = BookCondition.New,
-            MaxPrice = 50
+            MaxPrice = 50,
+            ISBN = "9780000000001",
+            Publisher = "Wesley",
+            PublicationYear = 2020
         };
 
         // Act

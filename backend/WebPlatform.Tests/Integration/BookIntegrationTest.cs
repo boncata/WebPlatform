@@ -98,6 +98,18 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/api/books?publicationYear=999")] // below the allowed range
+    [InlineData("/api/books?publicationYear=2101")] // above the allowed range
+    public async Task GetBooks_WithPublicationYearOutOfRange_ShouldReturnBadRequest(string url)
+    {
+        // Act
+        var response = await _client.GetAsync(url);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     [Fact]
     public async Task CreateBook_WithoutRequiredFields_ShouldReturnBadRequest()
     {

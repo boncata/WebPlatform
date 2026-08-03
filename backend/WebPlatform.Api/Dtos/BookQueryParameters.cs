@@ -30,4 +30,14 @@ public class BookQueryParameters
 
     [Range(0, double.MaxValue)]
     public decimal? MaxPrice { get; set; }
+
+    public string? ISBN { get; set; }
+
+    public string? Publisher { get; set; }
+
+    // Same range and rationale as BookRequest.PublicationYear: 1000
+    // comfortably predates the printing press, 2100 is a soft
+    // "not absurdly far in the future" ceiling.
+    [Range(1000, 2100)]
+    public int? PublicationYear { get; set; }
 }
