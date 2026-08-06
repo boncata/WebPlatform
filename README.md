@@ -1,7 +1,7 @@
 # WebPlatform
 
 WebPlatform is a project for building an online book-selling system, whose backend is built using C#, ASP.NET Core Web API, Entity Framework Core, and PostgreSQL, while the frontend
-is developed with JavaScript, React, Vite and Axios.
+is developed with TypeScript, React, Vite and Axios.
 
 The goal of the project is to create a professional backend architecture for managing books, supporting CRUD operations through a REST API, persistent database storage, automated testing, and later containerization and frontend integration.
 
@@ -20,7 +20,7 @@ The goal of the project is to create a professional backend architecture for man
 - Swagger / OpenAPI
 
 ## Frontend
-- JavaScript
+- TypeScript
 - React
 - Vite
 - Axios
