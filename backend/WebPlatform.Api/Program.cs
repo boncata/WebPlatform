@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using WebPlatform.Api.Data;
 using WebPlatform.Api.Services;
@@ -5,8 +6,15 @@ using WebPlatform.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add the controllers.
-builder.Services.AddControllers();
+// Add the controllers. Enums (Condition, SortBy, SortOrder) are serialized
+// as their string name (e.g. "Good") instead of the default numeric value
+// (e.g. 40), so API consumers don't have to maintain their own mapping
+// from number back to a readable label.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Add support for Swagger.
 builder.Services.AddEndpointsApiExplorer();

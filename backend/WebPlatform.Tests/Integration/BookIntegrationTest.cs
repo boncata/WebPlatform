@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using WebPlatform.Api.Dtos;
 using WebPlatform.Api.Models;
@@ -9,6 +11,18 @@ namespace WebPlatform.Tests.Integration;
 public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+
+    // HttpContent.ReadFromJsonAsync uses its own default JsonSerializerOptions,
+    // separate from the server's configured options (Program.cs). Since the
+    // API now serializes enums as strings (e.g. "Good" instead of 40), the
+    // test client needs the matching converter to read them back. Starting
+    // from JsonSerializerDefaults.Web (rather than a bare `new()`) keeps the
+    // camelCase, case-insensitive property matching that ReadFromJsonAsync
+    // normally applies implicitly when no options are passed at all.
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     /// <summary>
     /// Integration test for the backend functionality of storing and
@@ -59,7 +73,7 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        var queryResult = getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>().Result;
+        var queryResult = getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>(JsonOptions).Result;
 
         Assert.NotNull(queryResult);
         Assert.Equal(page_number, queryResult.Page);
@@ -153,7 +167,7 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>(JsonOptions);
 
         Assert.NotNull(queryResult);
         Assert.Equal(2, queryResult.Items.Count());
@@ -261,7 +275,7 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         // Assert
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+        var queryResult = await getResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>(JsonOptions);
 
         Assert.NotNull(queryResult);
         Assert.Contains(queryResult.Items, b => b.ISBN == "9780132350884");
@@ -272,7 +286,7 @@ public class BooksIntegrationTests : IClassFixture<WebApplicationFactory<Program
         (await _client.DeleteAsync($"/api/books/{matchingId}")).EnsureSuccessStatusCode();
 
         var allBooksResponse = await _client.GetAsync("/api/books?search=Effective Java Filter Test");
-        var allBooksResult = await allBooksResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>();
+        var allBooksResult = await allBooksResponse.Content.ReadFromJsonAsync<PagedResult<BookResponse>>(JsonOptions);
         var nonMatchingId = allBooksResult!.Items.First(b => b.ISBN == "9780134685991").Id;
         (await _client.DeleteAsync($"/api/books/{nonMatchingId}")).EnsureSuccessStatusCode();
     }
