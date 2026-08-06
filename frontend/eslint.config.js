@@ -19,5 +19,15 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // shadcn/ui's generated components (Button, Badge, etc.) routinely
+      // export a cva()-based variants constant alongside the component
+      // itself. allowConstantExport permits that without disabling the
+      // underlying Fast Refresh check.
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+    },
   },
 ])

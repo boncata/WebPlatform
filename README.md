@@ -24,6 +24,8 @@ The goal of the project is to create a professional backend architecture for man
 - React
 - Vite
 - Axios
+- Tailwind CSS
+- shadcn/ui (Base UI)
 
 ---
 
@@ -143,6 +145,39 @@ Navigate to the frontend directory ``frontend``. Install the required packages:
 npm install
 ```
 
+## Styling: Tailwind CSS
+Tailwind CSS v4 is already configured (see ``vite.config.ts`` and
+``src/index.css``). Unlike older Tailwind versions, this project
+intentionally has **no** ``tailwind.config.js`` — v4 is CSS-first, and the
+official Vite plugin (``@tailwindcss/vite``) detects used classes
+automatically by scanning the project. If you're used to v3 and go looking
+for that file, it isn't missing — it was never needed.
+
+## Adding shadcn/ui components
+This project uses [shadcn/ui](https://ui.shadcn.com/) (with Base UI as the
+underlying component library, and the "Nova" preset). Components are added
+via its CLI, e.g.:
+
+```Bash
+npx shadcn@latest add input
+```
+
+**Known CLI bug — always pass ``--path`` explicitly.** In this project's
+combination of Vite, Base UI, and the current CLI version, running ``add``
+*without* an explicit path creates a literal ``./@/`` folder at the project
+root instead of resolving into ``src/`` — even though the ``@/*`` alias is
+correctly configured in both ``tsconfig.app.json`` and ``vite.config.ts``
+(confirmed working for the rest of the app via normal builds and the dev
+server). Until this is fixed upstream, always run:
+
+```Bash
+npx shadcn@latest add <component> --path src/components/ui
+```
+
+(``utils`` specifically needs ``--path src/lib`` instead.) If a stray ``@``
+folder ever appears at the project root after running ``add``, delete it
+and re-run the command with ``--path``.
+
 ---
 
 # Run WebPlatform
@@ -192,3 +227,19 @@ npm run test
 ```
 
 This runs all automated tests inside ``webplatform-ui``.
+
+---
+
+# Known Issues
+
+- **shadcn/ui CLI writes to the wrong folder without ``--path``.** See
+  "Adding shadcn/ui components" above. This is a bug in the CLI's alias
+  resolution for this Vite + Base UI setup, not a project misconfiguration —
+  the ``@/*`` alias itself is correctly set up and works everywhere else.
+- **ESLint's ``react-refresh/only-export-components`` is relaxed on
+  purpose.** shadcn/ui's generated components (Button, Badge, etc.)
+  routinely export both the component and a ``cva()``-based variants
+  constant from the same file, which this rule normally flags.
+  ``eslint.config.js`` sets ``allowConstantExport: true`` specifically to
+  allow that pattern — if you see it while reviewing the ESLint config,
+  it's intentional, not an oversight to "clean up".
