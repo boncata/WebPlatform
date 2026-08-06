@@ -10,13 +10,13 @@ import {
   render,
   screen,
   fireEvent,
-  waitFor,
   cleanup
 } from "@testing-library/react";
 
 import App from "./App";
 
 import * as booksApi from "./api/books";
+import type { Book } from "./types/book";
 
 // Cleans up the DOM & Mocks after each test.
 afterEach(() => {
@@ -25,6 +25,14 @@ afterEach(() => {
 });
 
 vi.mock("./api/books");
+
+// vi.mock() replaces the module's functions with mocks at runtime, but
+// TypeScript still sees their original (real) types by default — it has no
+// way to know at compile time that vi.mock swapped the implementation.
+// vi.mocked() re-types an already-mocked import so methods like
+// mockResolvedValueOnce are recognized.
+const mockedGetBooks = vi.mocked(booksApi.getBooks);
+const mockedCreateBook = vi.mocked(booksApi.createBook);
 
 /**
  * Integration test for the whole App. Checks that when
@@ -40,26 +48,41 @@ vi.mock("./api/books");
  */
 describe("App integration", () => {
   test("creates a new book and updates UI", async () => {
-    const booksBefore = [
+    // getBooks resolves the full Book shape, so the fixtures need every
+    // field, unlike BookList's own tests which only need the fields it
+    // actually renders.
+    const booksBefore: Book[] = [
       {
         id: 1,
+        isbn: null,
         title: "Clean Code",
         author: "Robert C. Martin",
-        price: 30
+        publicationYear: null,
+        publisher: "",
+        language: "",
+        description: "",
+        price: 30,
+        condition: "Good"
       }
     ];
 
-    const booksAfter = [
+    const booksAfter: Book[] = [
       ...booksBefore,
       {
         id: 2,
+        isbn: null,
         title: "Refactoring",
         author: "Martin Fowler",
-        price: 40
+        publicationYear: null,
+        publisher: "",
+        language: "",
+        description: "",
+        price: 40,
+        condition: "Good"
       }
     ];
 
-    booksApi.getBooks
+    mockedGetBooks
       // First getBooks() call returns initial page.
       .mockResolvedValueOnce({
         items: booksBefore,
@@ -75,8 +98,10 @@ describe("App integration", () => {
         totalCount: booksAfter.length
       });
 
-    booksApi.createBook
-      .mockResolvedValue({});
+    // The component never reads the resolved value, so an empty object
+    // stands in here — cast because it doesn't need to satisfy the full
+    // Book shape to make that true.
+    mockedCreateBook.mockResolvedValue({} as Book);
 
     render(<App />);
 

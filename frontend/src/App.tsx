@@ -4,6 +4,7 @@ import BookList from "./components/BookList";
 import BookForm from "./components/BookForm";
 
 import { getBooks } from "./api/books";
+import type { Book } from "./types/book";
 
 /**
  * The main compoment.
@@ -13,7 +14,9 @@ function App() {
   // books is the state variable, setBooks is the function that
   // updates the state variable. They both come from useState.
   // useState is given by React and runs React procedures automatically.
-  const [books, setBooks] = useState([]);
+  // <Book[]> tells useState what type the state holds, since an empty
+  // array alone isn't enough for TypeScript to infer it.
+  const [books, setBooks] = useState<Book[]>([]);
 
   const loadBooks = async () => {
     try {
@@ -25,6 +28,11 @@ function App() {
   };
 
   useEffect(() => {
+    // This data-fetching pattern (an async call that sets state directly
+    // inside an effect) is being replaced wholesale by a TanStack Query
+    // useQuery call in the next phase, which handles this case correctly,
+    // so it isn't being restructured here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadBooks();
   }, []);
 

@@ -1,22 +1,32 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 
 import { createBook } from "../api/books";
 
-function BookForm({ onBookCreated }) {
-  const [form, setForm] = useState({
+interface BookFormProps {
+  onBookCreated: () => void;
+}
+
+interface BookFormState {
+  title: string;
+  author: string;
+  price: string;
+}
+
+function BookForm({ onBookCreated }: BookFormProps) {
+  const [form, setForm] = useState<BookFormState>({
     title: "",
     author: "",
     price: ""
   });
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form, // means: copy all existing fields, override changed field.
       [event.target.name]: event.target.value
     });
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // Prevents browser from reloading the page. Important!
     event.preventDefault();
 
@@ -33,7 +43,7 @@ function BookForm({ onBookCreated }) {
     };
 
     try {
-    
+
       await createBook(payload);
 
       // Reset the form after the successful request.

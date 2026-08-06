@@ -39,9 +39,9 @@ describe("BookForm", () => {
     );
 
     // Hint: Real browser input events look like: event.target.value.
-    // React receives same structure. 
+    // React receives same structure.
 
-    // Simulate user typing. 
+    // Simulate user typing.
     fireEvent.change(
       screen.getByPlaceholderText("Title"), // finds <input placeholder="Title" />
       // This is the event object, which simulates browser event.
@@ -73,7 +73,7 @@ describe("BookForm", () => {
     // Verify that callback function was executed.
     // "waitFor" is needed, because form submission is asynchronous.
     // It will keep checking until assertion passes or timeout occurs.
-    // If we use "expect" the assertion might run before async code finishes. 
+    // If we use "expect" the assertion might run before async code finishes.
     await waitFor(() => {
       expect(createBook).toHaveBeenCalledWith({
         title: "Clean Code",
@@ -97,12 +97,12 @@ describe("BookForm", () => {
     const mockOnBookCreated = vi.fn();
 
     // Spy on (browser)window.alert to check if it's called with correct message.
-    // Replace alert with empty function, via mockImplementation, so 
+    // Replace alert with empty function, via mockImplementation, so
     // it doesn't actually pop up during tests.
     const alertSpy = vi
       .spyOn(window, "alert")
       .mockImplementation(() => {});
-      
+
     render(
       <BookForm onBookCreated={mockOnBookCreated} />
     );
